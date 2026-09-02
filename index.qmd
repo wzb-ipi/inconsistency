@@ -12,8 +12,7 @@ Files to replicate analyses and tables for "Penalties for Adjusting Public Polic
 Raw survey data are **not** in this archive. See Housekeeping in `analysis.qmd` for data paths.
 
 1. [Theory figures](theory.html) (`theory.qmd`) — Figure 1 `2_figures/policy.pdf`, Figure 2 `2_figures/credibility.pdf`
-2. [Paper and SI analyses](analysis.html) (`analysis.qmd`)
-3. Figures and tables in [`2_figures/`](2_figures/)
-4. Assignment universe (not respondent data): [`1_input/`](1_input/)
+2. [Paper and SI analyses for AJPS submission](analysis.html) (`analysis.qmd`)
+3. [Paper and SI analyses for JEPS submission](jeps_analysis.html) (`jeps_analysis.qmd`)
 
 Paper and SI object labels are listed at the top of `analysis.qmd`.
