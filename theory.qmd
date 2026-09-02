@@ -1,0 +1,277 @@
+---
+title: "Theory figures: deemed-optimal policy and credibility"
+subtitle: Predictions for the paper figures on policy support and sender credibility
+format:
+  html:
+    number-sections: true
+    embed-resources: true
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Setup
+
+$\alpha$ is the probability that evidence continues to deem the same policy optimal. Underlying optimality does not change. $1-\alpha$ is the probability that new evidence leads a different policy to be *deemed* optimal. $p$ is the prior that period-1 evidence deems policy 1 optimal. $q$ is prior confidence that the sender is competent.
+
+```{r}
+#| label: theory-packages
+
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(
+  tidyverse,
+  gridExtra,
+  knitr,
+  latex2exp
+)
+
+fig_dir <- "2_figures"
+dir.create(fig_dir, showWarnings = FALSE)
+```
+
+Citizens have a prior $p$ that period-1 evidence deems policy 1 optimal. With probability $\alpha$, new evidence continues to deem the same policy optimal; with probability $1-\alpha$, new evidence leads the other policy to be deemed optimal. True optimality is fixed; only the evidence-implied (deemed) recommendation may change.
+
+Beliefs over the deemed-optimal path $(w_1, w_2)$ are
+
+\begin{align*}
+p_{11} &= p\alpha\\
+p_{10} &= p(1-\alpha) \\
+p_{01} &= (1-p)(1-\alpha) \\
+p_{00} &= (1-p)\alpha
+\end{align*}
+
+Without loss of generality the first signal is for policy 1.
+
+| Event $(w_1, w_2, \theta)$ | Prior      | $\Pr(s_1 = 1, s_2=1)$ | $\Pr(s_1 = 1, s_2=0)$ |
+|:--------------------------:|:----------:|:------------------:|:------------------:|
+| (0, 0, 0)                  | $p_{00}(1-q)$ | $(1-r)^2$          | $r(1-r)$           |
+| (0, 1, 0)                  | $p_{01}(1-q)$ | $r(1-r)$           | $(1-r)^2$          |
+| (1, 0, 0)                  | $p_{10}(1-q)$ | $r(1-r)$           | $r^2$              |
+| (1, 1, 0)                  | $p_{11}(1-q)$ | $r^2$              | $r(1-r)$           |
+| (0, 0, 1)                  | $p_{00}q$     | $0$                | $0$                |
+| (0, 1, 1)                  | $p_{01}q$     | $0$                | $0$                |
+| (1, 0, 1)                  | $p_{10}q$     | $0$                | $1$                |
+| (1, 1, 1)                  | $p_{11}q$     | $1$                | $0$                |
+
+Posterior on capacity after a consistent signal $(1,1)$:
+
+$$p^c_{11} = \frac{p_{11} q}{p_{11}q  + (p_{00}(1-r)^2 + (p_{01}+p_{10})r(1-r) + p_{11} r^2)(1-q)}$$
+
+and after an inconsistent signal $(1,0)$:
+
+$$p^c_{10} = \frac{p_{10} q}{p_{10} q + ((p_{00}+p_{11})r(1-r) + p_{01}(1-r)^2 + p_{10}r^2)(1-q)}$$
+
+$p^c_{10} \leq p^c_{11}$ iff $\alpha \geq 0.5$: inconsistency is more damaging when evidence is expected to keep deeming the same policy optimal.
+
+Posterior confidence that policy 1 is deemed optimal in period 2, given messages:
+
+$$p^1_{11} = \frac{p_{11} q + (p_{01}r(1-r)+p_{11}r^2)(1-q)}{p_{11}q  + (p_{00}(1-r)^2 + (p_{01}+ p_{10})r(1-r) + p_{11} r^2)(1-q)}$$
+
+$$p^1_{10} = \frac{(r(1-r)p_{11} + (1-r)^2p_{01})(1-q)}{p_{10} q + ((p_{00}+p_{11})r(1-r) + p_{01}(1-r)^2 + p_{10}r^2)(1-q)}$$
+
+# Helpers
+
+```{r}
+#| label: theory-helpers
+
+# α = P(deemed-optimal policy persists as evidence accumulates)
+p_11 <- function(p, a) p * a
+p_10 <- function(p, a) p * (1 - a)
+p_01 <- function(p, a) (1 - p) * (1 - a)
+p_00 <- function(p, a) (1 - p) * a
+
+p_c_11 <- function(p, a, q, r) {
+  num <- p_11(p, a) * q
+  denom <- p_11(p, a) * q +
+    (p_00(p, a) * (1 - r)^2 + (p_01(p, a) + p_10(p, a)) * r * (1 - r) +
+       p_11(p, a) * r^2) * (1 - q)
+  num / denom
+}
+
+p_c_10 <- function(p, a, q, r) {
+  num <- p_10(p, a) * q
+  denom <- p_10(p, a) * q +
+    ((p_00(p, a) + p_11(p, a)) * r * (1 - r) + p_01(p, a) * (1 - r)^2 +
+       p_10(p, a) * r^2) * (1 - q)
+  num / denom
+}
+
+p_c_01 <- function(p, a, q, r) {
+  num <- p_01(p, a) * q
+  denom <- p_01(p, a) * q +
+    ((p_00(p, a) + p_11(p, a)) * r * (1 - r) + p_01(p, a) * r^2 +
+       p_10(p, a) * (1 - r)^2) * (1 - q)
+  num / denom
+}
+
+p_c_00 <- function(p, a, q, r) {
+  num <- p_00(p, a) * q
+  denom <- p_00(p, a) * q +
+    (p_00(p, a) * r^2 + (p_01(p, a) + p_10(p, a)) * r * (1 - r) +
+       p_11(p, a) * (1 - r)^2) * (1 - q)
+  num / denom
+}
+
+p_1_11 <- function(p, a, q, r) {
+  num <- p_11(p, a) * q +
+    (p_01(p, a) * r * (1 - r) + p_11(p, a) * r^2) * (1 - q)
+  denom <- p_11(p, a) * q +
+    (p_00(p, a) * (1 - r)^2 + (p_01(p, a) + p_10(p, a)) * r * (1 - r) +
+       p_11(p, a) * r^2) * (1 - q)
+  num / denom
+}
+
+p_1_10 <- function(p, a, q, r) {
+  num <- (r * (1 - r) * p_11(p, a) + (1 - r)^2 * p_01(p, a)) * (1 - q)
+  denom <- p_10(p, a) * q +
+    ((p_00(p, a) + p_11(p, a)) * r * (1 - r) + p_01(p, a) * (1 - r)^2 +
+       p_10(p, a) * r^2) * (1 - q)
+  num / denom
+}
+
+p_1_01 <- function(p, a, q, r) {
+  num <- p_01(p, a) * q +
+    (r * (1 - r) * p_11(p, a) + r^2 * p_01(p, a)) * (1 - q)
+  denom <- p_01(p, a) * q +
+    ((p_00(p, a) + p_11(p, a)) * r * (1 - r) + p_01(p, a) * r^2 +
+       p_10(p, a) * (1 - r)^2) * (1 - q)
+  num / denom
+}
+
+p_1_00 <- function(p, a, q, r) {
+  num <- (p_01(p, a) * r * (1 - r) + p_11(p, a) * (1 - r)^2) * (1 - q)
+  denom <- p_00(p, a) * q +
+    (p_00(p, a) * r^2 + (p_01(p, a) + p_10(p, a)) * r * (1 - r) +
+       p_11(p, a) * (1 - r)^2) * (1 - q)
+  num / denom
+}
+
+alpha_lab <- function(a) {
+  latex2exp::TeX(paste0("$\\alpha = ", a, "$ (deemed optimum persists)"))
+}
+```
+
+# Predictions
+
+```{r}
+#| label: theory-grid
+
+df2 <- expand_grid(
+  p = c(.05, .25, .5, .75, .95),
+  a = c(.51, .625, .75, .875, .95),
+  q = seq(.01, .99, length = 25),
+  r = 2 / 3
+) |>
+  mutate(
+    p00 = p_00(p, a),
+    p01 = p_01(p, a),
+    p10 = p_10(p, a),
+    p11 = p_11(p, a),
+    c_11 = p_c_11(p, a, q, r),
+    c_10 = p_c_10(p, a, q, r),
+    c_01 = p_c_01(p, a, q, r),
+    c_00 = p_c_00(p, a, q, r),
+    d_c = c_10 - c_11,
+    pol_1_11 = p_1_11(p, a, q, r),
+    pol_1_10 = p_1_10(p, a, q, r),
+    pol_1_01 = p_1_01(p, a, q, r),
+    pol_1_00 = p_1_00(p, a, q, r),
+    d_pol_1 = pol_1_10 - pol_1_11,
+    d_pol_2 = pol_1_01 - pol_1_11
+  )
+```
+
+Inconsistency lowers credibility. The penalty is larger when $\alpha$ is high (new evidence is expected to keep deeming the same policy optimal) and when $q$ is middling.
+
+```{r}
+#| label: fig-credibility
+#| fig-cap: "Figure 2. Theoretical predictions for credibility beliefs conditional on messaging history, prior trust in the sender (q), prior beliefs of changing evidence (α), and prior beliefs about the issue p."
+
+fig_credibility <-
+  df2 |>
+  select(p, a, q, r, c_11, c_10, c_01, c_00) |>
+  pivot_longer(c(c_11, c_10, c_01, c_00), names_to = "condition", values_to = "val") |>
+  mutate(
+    condition = factor(
+      condition,
+      c("c_00", "c_01", "c_10", "c_11"),
+      c("0 then 0", "0 then 1", "1 then 0", "1 then 1")
+    ),
+    a = factor(a, unique(a), latex2exp::TeX(paste0("$\\alpha = ", unique(a), "$"))),
+    p = factor(p, unique(p), latex2exp::TeX(paste0("$p = ", unique(p), "$")))
+  ) |>
+  ggplot(aes(q, val, color = condition)) +
+  geom_line() +
+  facet_grid(a ~ p, labeller = label_parsed) +
+  ylab("Credibility given statement") +
+  xlab("q: prior confidence in authority") +
+  ggtitle("Figure 2. Credibility given messaging history") +
+  labs(
+    subtitle = "α = P(evidence continues to deem the same policy optimal); underlying optimality is fixed",
+    caption = "r = 2/3. α high: deemed-optimal policy is expected to persist. 1−α: new evidence may deem the other policy optimal."
+  ) +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25))
+
+fig_credibility
+```
+
+```{r}
+#| label: fig-policy
+#| fig-cap: "Figure 1. Theoretical predictions for support for policy 1 given messaging history, prior trust in the sender (q), prior beliefs of changing evidence (α), and prior beliefs about the issue p."
+
+fig_policy <-
+  df2 |>
+  select(p, a, q, r, pol_1_11, pol_1_10, pol_1_01, pol_1_00) |>
+  pivot_longer(
+    c(pol_1_11, pol_1_10, pol_1_01, pol_1_00),
+    names_to = "condition",
+    values_to = "val"
+  ) |>
+  mutate(
+    condition = factor(
+      condition,
+      c("pol_1_00", "pol_1_01", "pol_1_10", "pol_1_11"),
+      c("0 then 0", "0 then 1", "1 then 0", "1 then 1")
+    ),
+    a = factor(a, unique(a), latex2exp::TeX(paste0("$\\alpha = ", unique(a), "$"))),
+    p = factor(p, unique(p), latex2exp::TeX(paste0("$p = ", unique(p), "$")))
+  ) |>
+  ggplot(aes(q, val, color = condition)) +
+  geom_line() +
+  facet_grid(a ~ p, labeller = label_parsed) +
+  ylab("Support for policy 1") +
+  xlab("q: prior confidence in authority") +
+  ggtitle("Figure 1. Support for policy 1 given messaging history") +
+  labs(
+    subtitle = "α = P(evidence continues to deem the same policy optimal); underlying optimality is fixed",
+    caption = "r = 2/3. High α: deemed-optimal policy expected to persist as evidence accumulates."
+  ) +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25))
+
+fig_policy
+```
+
+# Export
+
+```{r}
+#| label: theory-export
+
+ggsave(
+  file.path(fig_dir, "credibility.pdf"),
+  fig_credibility,
+  width = 10,
+  height = 6
+)
+
+ggsave(
+  file.path(fig_dir, "policy.pdf"),
+  fig_policy,
+  width = 10,
+  height = 6
+)
+```

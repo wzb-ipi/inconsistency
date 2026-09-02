@@ -1,0 +1,1680 @@
+---
+title: "Penalties for Adjusting Public Policies are Stubborn"
+subtitle: Replication code for paper and SI tables and figures
+author: Felix Hartmann, Ferdinand Geissler, Macartan Humphreys, Heike Klüver, Johannes Giesecke
+output-file: analysis.html
+format:
+  html:
+    number-sections: true
+    embed-resources: true
+    toc: true
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+This file reproduces paper and SI tables and figures. Theory figures 1–2 are produced by `theory.qmd`. Object names in the first column jump to the section that produces that object.
+
+| Object | Overleaf file name | Overleaf label |
+|:-------|:-------------------|:---------------|
+| [Table 1](#tbl-likelihoods) | — (inlined in `main.tex`) | `likelihoods` |
+| [Figure 1](#fig-policy) | `2_figures/policy.pdf` | `fig:policy` |
+| [Figure 2](#fig-credibility) | `2_figures/credibility.pdf` | `fig:credibility` |
+| [Figure 3](#fig-prior) | `2_figures/figure_10.pdf` | `fig:Prior` |
+| [Table 2](#tbl-example) | — (inlined in `main.tex`) | `tab:example` |
+| [Figure 4](#fig-raw) | `2_figures/raw_disagg.pdf` | `fig:raw` |
+| [Table 3](#tbl-saturated) | `1_tables/tab_1_full.tex` | `table:saturated` |
+| [Figure 5](#fig-itt) | `2_figures/figure_1.pdf` | `fig:ITT` |
+| [Figure 6](#fig-science-information) | `2_figures/figure_3_new.pdf` | `fig:ScienceInformation` |
+| [Table A.1](#tbl-coefficients-policy) | — (inlined in `appendix.tex`) | `table:coefficients:policy` |
+| [Figure A.1](#fig-policy-updating) | `2_figures/fig_pol_updating.pdf` | `fig:policy:updating` |
+| [Figure C.1](#fig-c1) | `2_figures/Screenshot_2021-09-08 Umfrage(1–5).png` | — |
+| [Figure C.2](#fig-c2) | `2_figures/Screenshot_2021-09-08 Umfrage(6–8).png` | — |
+| [Table D.1](#tbl-d1) | — (inlined in `appendix.tex`) | — |
+| [Figure D.1](#fig-priors) | `2_figures/figure_13.pdf` | `fig:priors` |
+| [Table E.1](#tbl-e1) | — (inlined in `appendix.tex`) | — |
+| [Table E.2](#tbl-treatment-compliance) | — (inlined in `appendix.tex`) | `TreatmentCompliance` |
+| [Table E.3](#tbl-coefficients) | `1_tables/tab_man1` | `table:coefficients` |
+| [Table F.1](#tbl-inquiry-reconciliation) | — (inlined in `appendix.tex`) | `tab:inquiry_reconciliation` |
+| [Table F.2](#tbl-parameter-mapping) | — (inlined in `appendix.tex`) | `tab:parameter_mapping` |
+| [Table F.3](#tbl-answer-strategy) | — (inlined in `appendix.tex`) | `tab:answer_strategy` |
+| [Table G.1](#tbl-saturated-0) | `1_tables/tab_1_full_0.tex` | `table:saturated_0` |
+| [Table G.2](#tbl-saturated-1) | `1_tables/tab_1_full_1.tex` | `table:saturated_1` |
+| [Table G.3](#tbl-saturated-priors) | `1_tables/tab_1_full_priors.tex` | `table:saturated_priors` |
+| [Table G.4](#tbl-saturated-priors-interactions) | `1_tables/tab_1_full_priors_interactions` | `table:saturated_priors_interactions` |
+| [Figure G.1](#fig-cate-priors) | `2_figures/fig_1.pdf` | `fig:cate_priors` |
+| [Table G.5](#tbl-saturated-high-priors) | `1_tables/tab_1_high_priors.tex` | `tab:saturated_high_priors` |
+| [Table G.6](#tbl-saturated-med-priors) | `1_tables/tab_1_med_priors.tex` | `tab:saturated_med_priors` |
+| [Table G.7](#tbl-saturated-low-priors) | `1_tables/tab_1_low_priors.tex` | `tab:saturated_low_priors` |
+| [Table G.8](#tbl-g8) | — (inlined in `appendix.tex`) | — |
+| [Table G.9](#tbl-g9) | — (inlined in `appendix.tex`) | — |
+
+# 1. Housekeeping
+
+```{r}
+#| label: housekeeping
+
+rm(list = ls())
+set.seed(201911)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, comment = NA)
+
+if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
+pacman::p_load(
+  estimatr,
+  broom,
+  texreg,
+  haven,
+  tidyverse,
+  knitr,
+  kableExtra,
+  gridExtra,
+  interplot
+)
+
+fig_dir <- "2_figures"
+input_dir <- "1_input"
+dir.create(fig_dir, showWarnings = FALSE)
+
+# Survey `.sav` and election `.dta` are external; OxCGRT is fetched unless a local CSV is set.
+data_dir <- Sys.getenv(
+  "INCONSISTENCY_DATA_DIR",
+  unset = file.path(
+    "..", "..", "Covid Vaccine Allocation", "4_data", "wave_3", "final"
+  )
+)
+survey_file <- file.path(
+  data_dir,
+  "D-P21-13185 HU Berlin Impfskeptiker_Welle 3_Finaler Datensatz.sav"
+)
+vignette_file <- file.path(input_dir, "W3_exp5_vignettes_universe.dta")
+
+election_file <- Sys.getenv(
+  "INCONSISTENCY_ELECTION_DTA",
+  unset = file.path(
+    "..", "..", "Covid Vaccine Allocation",
+    "5_writing", "Paper 4 Inconsistency", "1_analysis",
+    "1_input", "dataverse_files", "covid19_replication.dta"
+  )
+)
+oxcgrt_url <- "https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker-legacy/main/legacy_data_202207/OxCGRT_latest.csv"
+oxcgrt_csv <- Sys.getenv("INCONSISTENCY_OXCGRT_CSV", unset = "")
+
+stopifnot(file.exists(survey_file))
+stopifnot(file.exists(vignette_file))
+stopifnot(file.exists(election_file))
+
+outcomes <- c(
+  "credible", "competent", "correct",
+  "convinced_of_message_2", "behave_as_message_2"
+)
+mod_names <- c(
+  "Credible", "Competent", "Correct",
+  "Belief (msg 2)", "Behave (msg 2)"
+)
+outcome_labels <- mod_names
+
+# Lin (2013) demeaning is applied only inside model helpers.
+# The analysis data keep 0/1 treatments.
+treatment_vars <- c("inconsistent", "trusted", "science", "safe_time1")
+
+prior_low <- 3.3
+prior_high <- 6.6
+```
+
+# 2. Helpers
+
+Demeaning is not applied to the stored data. `with_demeaned_treatments()` subtracts sample means of the listed 0/1 treatments on a *copy* used only for fitting. After [Lin (2013)](https://doi.org/10.1214/12-AOAS583), the coefficient on a demeaned treatment is the average effect. Subgroup models demean within the subgroup because the helper is called on the filtered data.
+
+```{r}
+#| label: helpers
+
+with_demeaned_treatments <- function(data, vars = treatment_vars) {
+  present <- intersect(vars, names(data))
+  data |>
+    mutate(across(all_of(present), \(x) as.numeric(x) - mean(as.numeric(x), na.rm = TRUE)))
+}
+
+fit_saturated <- function(data, y, rhs = "inconsistent * trusted * science * safe_time1") {
+  d <- with_demeaned_treatments(data)
+  estimatr::lm_robust(as.formula(paste(y, "~", rhs)), data = d)
+}
+
+fit_saturated_list <- function(data, y_vec = outcomes, rhs = "inconsistent * trusted * science * safe_time1") {
+  lapply(y_vec, function(y) fit_saturated(data, y, rhs))
+}
+
+table_note_outcomes <- paste(
+  "\\item %stars. Treatments are demeaned (Lin 2013) so reported coefficients are average effects.",
+  "Belief (msg 2) is conviction of the second message, recoded so that higher values mean greater agreement with the second recommendation --- not belief updating (posterior minus prior).",
+  "Behave (msg 2) is willingness to act in line with the second message, recoded analogously."
+)
+
+custom.coef.map <- list(
+  "inconsistent" = "Inconsistent",
+  "trusted" = "Scientific (sender identity)",
+  "science" = "Science (deemed optimum can change)",
+  "inconsistent:trusted" = "Inconsistent $\\times$ Scientific",
+  "inconsistent:science" = "Inconsistent $\\times$ Science",
+  "trusted:science" = "Sender: scientific $\\times$ Science",
+  "inconsistent:trusted:science" = "Inconsistent $\\times$ Scientific $\\times$ Science"
+)
+
+iv_coef_map <- list(
+  "treatment_measurement" = "Perceived inconsistency"
+)
+
+write_texreg <- function(models, file, caption, label,
+                         coef_map = custom.coef.map,
+                         names = mod_names,
+                         note = table_note_outcomes) {
+  tab <- texreg::texreg(
+    models,
+    include.ci = FALSE,
+    custom.model.names = names,
+    caption = caption,
+    stars = c(0.01, 0.05, 0.1),
+    custom.coef.map = coef_map,
+    label = label,
+    custom.note = note
+  )
+  write(tab, file = file)
+  tab
+}
+
+show_htmlreg <- function(models, caption, names = mod_names,
+                         coef_map = custom.coef.map, note = NULL, ...) {
+  extra <- list(...)
+  args <- c(
+    list(
+      l = models,
+      include.ci = FALSE,
+      custom.model.names = names,
+      caption = caption,
+      stars = c(0.01, 0.05, 0.1),
+      doctype = FALSE
+    ),
+    extra
+  )
+  if (!is.null(coef_map)) args$custom.coef.map <- coef_map
+  if (!is.null(note)) args$custom.note <- note
+  do.call(texreg::htmlreg, args)
+}
+
+prior_group <- function(x) {
+  cut(
+    x,
+    breaks = c(-Inf, prior_low, prior_high, Inf),
+    labels = c("mixing unsafe", "uncertain", "mixing safe"),
+    right = TRUE
+  )
+}
+
+science_lab <- function(x) {
+  if_else(
+    x == 1,
+    "science video (deemed optimum can change)",
+    "no science video"
+  )
+}
+```
+
+# 3. Data import
+
+```{r}
+#| label: import-vignettes
+
+label <- read_dta(vignette_file) |>
+  mutate(vignr = as.numeric(vignr)) |>
+  mutate(
+    unsafe_time1 = as.numeric(info1 == 1 | info1 == 2),
+    unsafe_time2 = as.numeric(info2 == 1 | info2 == 2),
+    safe_time1 = as.numeric(info1 == 3 | info1 == 4),
+    safe_time2 = as.numeric(info2 == 3 | info2 == 4),
+    inconsistent = case_when(
+      info1 <= 2 & info2 <= 2 ~ 0,
+      info1 > 2 & info2 > 2 ~ 0,
+      info1 <= 2 & info2 > 2 ~ 1,
+      info1 > 2 & info2 <= 2 ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+```
+
+```{r}
+#| label: import-survey
+
+thirdwave <-
+  read_sav(survey_file) |>
+  rename(
+    vignr = c_0031,
+    age = v_15,
+    gender = v_16,
+    state = v_23,
+    vaccination_status = v_28,
+    vaccine_type = v_372,
+    vaccine_first = v_395,
+    vaccine_second = v_399,
+    covid_invection = v_41,
+    trust_government = v_59,
+    trust_experts = v_60,
+    trust_state_gov = v_61,
+    trust_media = v_62,
+    trust_stiko = v_378,
+    political_interest = v_64,
+    party_id = v_69,
+    prior_pfm = v_192,
+    prior_vac_pfm = v_193,
+    salience_vac = v_194,
+    prior_mixed = v_374,
+    credible = v_382,
+    competent = v_383,
+    correct = v_384,
+    post_mixed = v_401,
+    behav_mixed = v_425,
+    incumbent_voting = v_327,
+    treatment_measurement = v_426,
+    manipulation_time1 = v_404,
+    manipulation_time2 = v_405,
+    manipulation_time3 = v_406,
+    manipulation_consistency = v_402,
+    manipulation_science = v_403
+  ) |>
+  mutate(
+    belief_update = post_mixed - prior_mixed,
+    belief_update_abs = abs(post_mixed - prior_mixed),
+    vignr = recode(
+      as.character(vignr),
+      "49" = "1", "50" = "4", "51" = "9", "52" = "12",
+      "53" = "13", "54" = "16", "55" = "21", "56" = "24",
+      "57" = "25", "58" = "28", "59" = "33", "60" = "36",
+      "61" = "37", "62" = "40", "63" = "45", "64" = "48"
+    ),
+    vignr = as.numeric(vignr)
+  ) |>
+  left_join(label, by = "vignr") |>
+  mutate(
+    # Original vignette coding: 0 = STIKO, 1 = government.
+    # Flip so trusted = 1 is STIKO (high trust), matching Table 1 in the paper.
+    sender_treat = case_when(
+      sender_treat == 0 ~ 1,
+      sender_treat == 1 ~ 0
+    ),
+    trusted = sender_treat,
+    science = info_treat,
+    types = case_when(
+      unsafe_time1 == 1 & safe_time2 == 1 ~ "unsafe-safe",
+      unsafe_time1 == 1 & unsafe_time2 == 1 ~ "unsafe-unsafe",
+      safe_time1 == 1 & unsafe_time2 == 1 ~ "safe-unsafe",
+      safe_time1 == 1 & safe_time2 == 1 ~ "safe-safe"
+    ),
+    convinced_of_message_2 = safe_time2 * post_mixed + (1 - safe_time2) * (10 - post_mixed),
+    behave_as_message_2 = safe_time2 * behav_mixed + (1 - safe_time2) * (10 - behav_mixed)
+  )
+
+# 0/1 treatment means: demeaning helpers subtract these, they do not overwrite thirdwave.
+treatment_means <- thirdwave |>
+  summarise(
+    across(
+      all_of(c(treatment_vars, "safe_time2")),
+      \(x) mean(as.numeric(x), na.rm = TRUE)
+    ),
+    n = n()
+  )
+treatment_means
+```
+
+# 4. Paper
+
+## Table 1. Events, likelihoods {#tbl-likelihoods}
+
+Hardcoded in the paper (not estimated from the survey). Displayed here so the HTML matches the manuscript.
+
+```{r}
+#| label: paper-table-1
+
+knitr::kable(
+  tibble::tribble(
+    ~Event, ~Prior, ~`Pr(s1=1, s2=1)`, ~`Pr(s1=1, s2=0)`,
+    "(0, 0, 0)", "$p_{00}(1-q)$", "$(1-r)^2$", "$r(1-r)$",
+    "(0, 1, 0)", "$p_{01}(1-q)$", "$r(1-r)$", "$(1-r)^2$",
+    "(1, 0, 0)", "$p_{10}(1-q)$", "$r(1-r)$", "$r^2$",
+    "(1, 1, 0)", "$p_{11}(1-q)$", "$r^2$", "$r(1-r)$",
+    "(0, 0, 1)", "$p_{00}q$", "$0$", "$0$",
+    "(0, 1, 1)", "$p_{01}q$", "$0$", "$0$",
+    "(1, 0, 1)", "$p_{10}q$", "$0$", "$1$",
+    "(1, 1, 1)", "$p_{11}q$", "$1$", "$0$"
+  ),
+  caption = "Table 1. Events, likelihoods.",
+  escape = FALSE
+)
+```
+
+## Figure 1. Theoretical predictions for policy support {#fig-policy}
+
+Produced by `theory.qmd` (`policy.pdf`). $\alpha$ is the probability that evidence continues to deem the same policy optimal; underlying optimality does not change.
+
+```{r}
+#| label: paper-figure-1
+#| fig-cap: "Figure 1. Theoretical predictions for support for policy 1 given messaging history, prior trust in the sender (q), prior beliefs of changing evidence (α), and prior beliefs about the issue p."
+
+knitr::include_graphics(file.path(fig_dir, "policy.pdf"))
+```
+
+## Figure 2. Theoretical predictions for credibility {#fig-credibility}
+
+Produced by `theory.qmd` (`credibility.pdf`).
+
+```{r}
+#| label: paper-figure-2
+#| fig-cap: "Figure 2. Theoretical predictions for credibility beliefs conditional on messaging history, prior trust in the sender (q), prior beliefs of changing evidence (α), and prior beliefs about the issue p."
+
+knitr::include_graphics(file.path(fig_dir, "credibility.pdf"))
+```
+
+## Figure 3. Public debate and prior attitudes {#fig-prior}
+
+Google Trends is optional (API). The current paper figure is included so the replication HTML matches the manuscript. Uncomment the `gtrendsR` chunk to rebuild the top panel.
+
+```{r}
+#| label: paper-figure-3
+#| fig-cap: "Figure 3. Descriptive Evidence: Public debate and prior attitudes towards vaccine mixing."
+
+knitr::include_graphics(file.path(fig_dir, "figure_10.pdf"))
+```
+
+```{r}
+#| label: paper-priors-histogram
+
+prior_mixed_hist <- thirdwave |>
+  ggplot(aes(prior_mixed)) +
+  geom_histogram(binwidth = 1, alpha = 0.6) +
+  xlab("Prior: how safe is mixing vaccines (0 unsafe, 10 safe)") +
+  theme_bw(base_size = 14)
+
+prior_mixed_hist
+```
+
+## Table 2. Experimental design {#tbl-example}
+
+Hardcoded in the paper.
+
+```{r}
+#| label: paper-table-2
+
+knitr::kable(
+  tibble::tribble(
+    ~Factor, ~Level,
+    "$T_1$ Science updating ($\\alpha$)", "(0) No video; (1) Video, changing evidence is normal science",
+    "$T_2$ Sender ($q$)", "(0) government; (1) scientific institution (STIKO)",
+    "$T_3$ Message", "(1) safe-safe; (2) unsafe-unsafe; (3) unsafe-safe; (4) safe-unsafe",
+    "$T_4$ Baseline (safe/unsafe)", "(0) $T_3 \\in \\{1,4\\}$; (1) $T_3 \\in \\{2,3\\}$",
+    "$T_5$ Inconsistent message ($s$)", "(0) $T_3 \\in \\{1,2\\}$; (1) $T_3 \\in \\{3,4\\}$"
+  ),
+  caption = "Table 2. Experimental design: Factors and levels.",
+  escape = FALSE
+)
+```
+
+## Figure 4. Raw data patterns disaggregated by priors {#fig-raw}
+
+```{r}
+#| label: paper-figure-4
+#| fig-cap: "Figure 4. Raw data patterns disaggregated by priors. Outcomes given experimental conditions."
+
+summary_data <-
+  thirdwave |>
+  mutate(
+    prior = prior_group(prior_mixed),
+    science = info_treat,
+    trust = sender_treat,
+    Z = paste0(safe_time1, "/", safe_time2)
+  ) |>
+  transmute(
+    safe_time1, safe_time2, science, trust, Z, prior,
+    credible = as.numeric(credible),
+    competent = as.numeric(competent),
+    correct = as.numeric(correct),
+    convinced = post_mixed,
+    act = behav_mixed
+  ) |>
+  pivot_longer(
+    c(credible, competent, correct, convinced, act),
+    names_to = "Y",
+    values_to = "val"
+  ) |>
+  group_by(safe_time1, safe_time2, science, trust, Z, Y, prior) |>
+  summarise(
+    n = sum(!is.na(val)),
+    mean = mean(val, na.rm = TRUE),
+    sd = sd(val, na.rm = TRUE),
+    se = sd / sqrt(n),
+    tcrit = qt(0.975, df = pmax(n - 1, 1)),
+    lwr = mean - tcrit * se,
+    upr = mean + tcrit * se,
+    .groups = "drop"
+  ) |>
+  mutate(
+    trust_lab = if_else(trust == 1, "high-trust institution", "low-trust institution"),
+    science_lab = science_lab(science),
+    cond = paste(trust_lab, science_lab, sep = "\n"),
+    cond = factor(
+      cond,
+      levels = c(
+        paste("high-trust institution", science_lab(0), sep = "\n"),
+        paste("high-trust institution", science_lab(1), sep = "\n"),
+        paste("low-trust institution", science_lab(0), sep = "\n"),
+        paste("low-trust institution", science_lab(1), sep = "\n")
+      )
+    ),
+    Z = recode(
+      Z,
+      "0/0" = "unsafe-unsafe",
+      "0/1" = "unsafe-safe",
+      "1/0" = "safe-unsafe",
+      "1/1" = "safe-safe"
+    ),
+    Z = factor(Z, c("unsafe-unsafe", "unsafe-safe", "safe-unsafe", "safe-safe"))
+  )
+
+all_row <- summary_data |>
+  group_by(safe_time1, safe_time2, Z, Y, prior) |>
+  summarise(
+    N = sum(n),
+    mu = sum(mean * n) / N,
+    var_num = sum((n - 1) * sd^2 + n * (mean - mu)^2),
+    sd = sqrt(var_num / pmax(N - 1, 1)),
+    se = sd / sqrt(N),
+    tcrit = qt(0.975, df = pmax(N - 1, 1)),
+    lwr = mu - tcrit * se,
+    upr = mu + tcrit * se,
+    .groups = "drop"
+  ) |>
+  transmute(
+    safe_time1, safe_time2, Z, Y, prior,
+    n = N, mean = mu, sd, se, tcrit, lwr, upr,
+    trust_lab = NA_character_, science_lab = NA_character_,
+    cond = factor("All conditions", levels = c("All conditions", levels(summary_data$cond)))
+  )
+
+summary_data <- bind_rows(
+  all_row,
+  summary_data |> mutate(cond = fct_relevel(cond, "All conditions"))
+) |>
+  mutate(
+    Y = factor(
+      Y,
+      c("competent", "credible", "correct", "convinced", "act"),
+      c("competent", "credible", "correct", "belief\n(trusts mixing)", "behavior\n(would mix)")
+    )
+  )
+
+raw_patterns_disagg <- ggplot(summary_data, aes(x = Z, y = mean, color = prior)) +
+  facet_grid(cond ~ Y, labeller = label_value) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.15) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    x = "Policy 1 / Policy 2",
+    y = "",
+    color = "Prior on mixing",
+    caption = "Belief/behavior panels are support for mixing, not agreement with message 2."
+  )
+
+raw_patterns_disagg
+ggsave(file.path(fig_dir, "raw_disagg.pdf"), raw_patterns_disagg, width = 8, height = 8)
+```
+
+## Table 3. Fully saturated model {#tbl-saturated}
+
+Estimand is unchanged. Labels distinguish Belief/Behave (agreement with message 2) from belief updating.
+
+```{r}
+#| label: paper-table-3
+
+saturated <- fit_saturated_list(thirdwave)
+
+tab_sat <- write_texreg(
+  saturated,
+  file = file.path(fig_dir, "tab_1_full.tex"),
+  caption = "Fully saturated model",
+  label = "table:saturated"
+)
+```
+
+```{r}
+#| label: paper-table-3-html
+#| results: asis
+
+texreg::htmlreg(
+  saturated,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "Table 3. Fully saturated model. Belief (msg 2) and Behave (msg 2) are recoded agreement with the second recommendation, not belief updating. Treatments demeaned (Lin 2013).",
+  stars = c(0.01, 0.05, 0.1),
+  custom.coef.map = custom.coef.map,
+  doctype = FALSE
+)
+```
+
+## Figure 5. ITT and LATE {#fig-itt}
+
+Assignment (`inconsistent`, 0/1) instruments perceived inconsistency (`treatment_measurement`).
+
+```{r}
+#| label: paper-figure-5
+#| fig-cap: "Figure 5. Intent-to-treat (ITT) and local average treatment (LATE) effect."
+
+models_basic <- lapply(outcomes, function(y) {
+  lm_robust(as.formula(paste(y, "~ inconsistent")), data = thirdwave)
+})
+names(models_basic) <- outcomes
+
+subfigure_1_itt <- lapply(models_basic, tidy) |>
+  bind_rows(.id = "outcome") |>
+  mutate(Model = "ITT") |>
+  filter(term != "(Intercept)") |>
+  mutate(outcome = factor(outcome, outcomes, outcome_labels)) |>
+  select(-any_of("df"))
+
+models_iv <- lapply(outcomes, function(y) {
+  iv_robust(
+    as.formula(paste(y, "~ treatment_measurement | inconsistent")),
+    data = thirdwave
+  )
+})
+names(models_iv) <- outcomes
+
+subfigure_1_iv <- lapply(models_iv, tidy) |>
+  bind_rows(.id = "outcome") |>
+  mutate(Model = "LATE") |>
+  filter(term != "(Intercept)") |>
+  mutate(outcome = factor(outcome, outcomes, outcome_labels)) |>
+  select(-any_of("df"))
+
+data_figure5 <- bind_rows(subfigure_1_itt, subfigure_1_iv)
+
+figure_5 <- data_figure5 |>
+  ggplot(aes(estimate, outcome, color = Model, shape = Model)) +
+  geom_point(position = position_dodge(width = 0.3), size = 3) +
+  geom_errorbar(
+    aes(xmin = conf.low, xmax = conf.high),
+    position = position_dodge(width = 0.3),
+    width = 0.1
+  ) +
+  geom_vline(xintercept = 0, linetype = "longdash") +
+  xlab("Effect of Inconsistent Information") +
+  ylab("Outcome") +
+  labs(
+    caption = "Belief (msg 2) and Behave (msg 2) are recoded agreement with the second recommendation."
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 16)) +
+  coord_flip()
+
+figure_5
+ggsave(file.path(fig_dir, "figure_1.pdf"), figure_5, width = 8, height = 5)
+ggsave(file.path(fig_dir, "figure_5.pdf"), figure_5, width = 8, height = 5)
+```
+
+```{r}
+#| label: paper-figure-5-itt-html
+#| results: asis
+
+show_htmlreg(
+  models_basic,
+  caption = "ITT companion to Figure 5. Inconsistency assignment. Same outcomes as Table 3."
+)
+```
+
+```{r}
+#| label: paper-figure-5-late-html
+#| results: asis
+
+show_htmlreg(
+  models_iv,
+  caption = "LATE/IV companion to Figure 5. Perceived inconsistency instrumented by assignment. Same outcomes as Table 3.",
+  coef_map = iv_coef_map
+)
+```
+
+## Figure 6. Inconsistency conditional on science video {#fig-science-information}
+
+Conditional coefficients of inconsistency at no-video and video, from the same demeaned saturated specification as Table 3. Figure 6 plots only Credible, Competent, and Correct (not Belief/Behave). Vertical error bars (`geom_errorbar` with ymin/ymax). The paper text on this figure concerns the *interaction* (whether the video weakens the inconsistency penalty), not the main effect of the video.
+
+```{r}
+#| label: paper-figure-6
+#| fig-cap: "Figure 6. Effect of Inconsistent Information conditional on the receipt of scientific information intervention."
+
+mean_science <- mean(as.numeric(thirdwave$science), na.rm = TRUE)
+fig6_idx <- 1:3
+fig6_order <- c("Competent", "Correct", "Credible")
+fig6_xlab <- c("Competence", "Correctness", "Credibility")
+
+science_me <- map_dfr(fig6_idx, function(i) {
+  fit <- saturated[[i]]
+  b <- coef(fit)
+  V <- vcov(fit)
+  inc <- "inconsistent"
+  int <- "inconsistent:science"
+  tibble(science_raw = c(0, 1), outcome = outcome_labels[i]) |>
+    mutate(
+      s_d = science_raw - mean_science,
+      estimate = b[[inc]] + b[[int]] * s_d,
+      se = sqrt(
+        V[inc, inc] + (s_d^2) * V[int, int] + 2 * s_d * V[inc, int]
+      ),
+      conf.low = estimate - 1.96 * se,
+      conf.high = estimate + 1.96 * se,
+      science = factor(science_raw, levels = c(0, 1), labels = c("0", "1"))
+    )
+}) |>
+  mutate(
+    outcome = factor(outcome, fig6_order, fig6_xlab)
+  )
+
+figure_6 <- science_me |>
+  ggplot(aes(outcome, estimate, color = science, shape = science)) +
+  geom_hline(yintercept = 0, linetype = "longdash") +
+  geom_point(position = position_dodge(width = 0.4), size = 3) +
+  geom_errorbar(
+    aes(ymin = conf.low, ymax = conf.high),
+    position = position_dodge(width = 0.4),
+    width = 0.15
+  ) +
+  xlab("Outcome") +
+  ylab("Effect of Inconsistency Treatment") +
+  labs(
+    color = "Science Information Treatment",
+    shape = "Science Information Treatment",
+    caption = "Conditional coefficients of inconsistency given the science-video arm. Table 3 demeaned specification. 95% intervals."
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+figure_6
+ggsave(file.path(fig_dir, "figure_3_new.pdf"), figure_6, width = 8, height = 5)
+ggsave(file.path(fig_dir, "figure_6.pdf"), figure_6, width = 8, height = 5)
+```
+
+# 5. SI
+
+## Table A.1. Statistical models (OxCGRT) {#tbl-coefficients-policy}
+
+Country-day OxCGRT (2022-07 legacy snapshot) merged with Pulejo and Querubin (2021) election data. Table A.1 is the Government Response Index specification, N = 65. Appendix prose describes the Containment Health Index; the printed coefficients match GRI.
+
+```{r}
+#| label: si-oxcgrt-data
+
+oxcgrt_raw <- if (nzchar(oxcgrt_csv) && file.exists(oxcgrt_csv)) {
+  read.csv(oxcgrt_csv)
+} else {
+  read.csv(oxcgrt_url)
+}
+oxcgrt_raw <- transform(oxcgrt_raw, Date = as.Date(as.character(Date), "%Y%m%d"))
+
+policy_variables <- c(
+  "ContainmentHealthIndex",
+  "StringencyIndex",
+  "GovernmentResponseIndex",
+  "C1_School.closing",
+  "C2_Workplace.closing",
+  "C3_Cancel.public.events",
+  "C4_Restrictions.on.gatherings",
+  "C5_Close.public.transport",
+  "C6_Stay.at.home.requirements",
+  "C7_Restrictions.on.internal.movement",
+  "C8_International.travel.controls",
+  "H1_Public.information.campaigns",
+  "H2_Testing.policy",
+  "H3_Contact.tracing",
+  "H6_Facial.Coverings",
+  "H7_Vaccination.policy",
+  "H8_Protection.of.elderly.people"
+)
+
+oxcgrt_daily <- oxcgrt_raw |>
+  subset(Date < as.Date("2020-05-29")) |>
+  dplyr::filter(Jurisdiction == "NAT_TOTAL") |>
+  dplyr::select(CountryCode, CountryName, Date, dplyr::any_of(policy_variables))
+
+election <- read_dta(election_file) |>
+  dplyr::select(
+    countryname,
+    timetocase1,
+    maxconsecutiveterms,
+    termlength,
+    canrun,
+    electionproximity_yrs,
+    electionproximity_yrs_canrun,
+    Z_bci_bci,
+    Z_cspf_sfi
+  )
+
+oxcgrt_merged <- merge(
+  oxcgrt_daily,
+  election,
+  by.x = "CountryName",
+  by.y = "countryname"
+)
+
+policy_present <- intersect(policy_variables, names(oxcgrt_merged))
+
+oxcgrt <- oxcgrt_merged |>
+  group_by(CountryName) |>
+  summarize(
+    across(
+      all_of(policy_present),
+      .fns = list(
+        sd = \(x) sd(x, na.rm = TRUE),
+        fluctuation = \(x) sd(diff(x), na.rm = TRUE),
+        changes = \(x) sum(diff(x) != 0, na.rm = TRUE),
+        reversals1 = \(x) sum(diff(sign(diff(x))) != 0, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    ),
+    .groups = "drop"
+  ) |>
+  merge(election, by.x = "CountryName", by.y = "countryname")
+
+c(n_countries = nrow(oxcgrt))
+```
+
+```{r}
+#| label: si-table-a1
+
+a1_rhs <- "canrun + electionproximity_yrs + electionproximity_yrs_canrun"
+a1_models <- list(
+  sd = lm_robust(as.formula(paste("GovernmentResponseIndex_sd ~", a1_rhs)), data = oxcgrt),
+  fluctuations = lm_robust(
+    as.formula(paste("GovernmentResponseIndex_fluctuation ~", a1_rhs)),
+    data = oxcgrt
+  ),
+  changes = lm_robust(
+    as.formula(paste("GovernmentResponseIndex_changes ~", a1_rhs)),
+    data = oxcgrt
+  ),
+  reversals = lm_robust(
+    as.formula(paste("GovernmentResponseIndex_reversals1 ~", a1_rhs)),
+    data = oxcgrt
+  )
+)
+a1_names <- c("sd", "fluctuations", "changes", "reversals")
+a1_coef_map <- list(
+  "canrun" = "Can Run",
+  "electionproximity_yrs" = "Electoral Proximity",
+  "electionproximity_yrs_canrun" = "Proximity $\\times$ Can Run"
+)
+
+tab_a1 <- texreg::texreg(
+  a1_models,
+  include.ci = FALSE,
+  omit.coef = "(Intercept)",
+  custom.model.names = a1_names,
+  custom.coef.map = a1_coef_map,
+  caption = "Statistical models",
+  label = "table:coefficients:policy",
+  stars = c(0.001, 0.01, 0.05, 0.1)
+)
+write(tab_a1, file = file.path(fig_dir, "tab_a1_policy.tex"))
+```
+
+```{r}
+#| label: si-table-a1-html
+#| results: asis
+
+show_htmlreg(
+  a1_models,
+  caption = "Table A.1. Statistical models. Government Response Index; N = 65. Can Run, Electoral Proximity, and their interaction.",
+  names = a1_names,
+  coef_map = list(
+    "canrun" = "Can Run",
+    "electionproximity_yrs" = "Electoral Proximity",
+    "electionproximity_yrs_canrun" = "Proximity × Can Run"
+  ),
+  omit.coef = "(Intercept)"
+)
+```
+
+## Figure A.1. The Effect of Elections on Policy Changes {#fig-policy-updating}
+
+Conditional coefficients on proximity × can-run for the CHI component indicators.
+
+```{r}
+#| label: si-figure-a1
+#| fig-cap: "Figure A.1. The Effect of Elections on Policy Changes."
+
+policy_labels <- c(
+  "C1_School.closing" = "School closing",
+  "C2_Workplace.closing" = "Workplace closing",
+  "C3_Cancel.public.events" = "Public events",
+  "C4_Restrictions.on.gatherings" = "Restrictions gatherings",
+  "C5_Close.public.transport" = "Public transport",
+  "C6_Stay.at.home.requirements" = "Stay home",
+  "C7_Restrictions.on.internal.movement" = "Restrictions movement",
+  "C8_International.travel.controls" = "International travel",
+  "H1_Public.information.campaigns" = "Information campaigns",
+  "H2_Testing.policy" = "Testing policy",
+  "H3_Contact.tracing" = "Contact tracing",
+  "H6_Facial.Coverings" = "Facial coverings",
+  "H7_Vaccination.policy" = "Vaccination policy",
+  "H8_Protection.of.elderly.people" = "Protection elderly"
+)
+
+indicator_vars <- setdiff(
+  policy_present,
+  c("ContainmentHealthIndex", "StringencyIndex", "GovernmentResponseIndex")
+)
+
+a1_fig_dat <- map_dfr(indicator_vars, function(variable) {
+  map_dfr(c("_sd", "_fluctuation", "_changes", "_reversals1"), function(measure) {
+    outcome <- paste0(variable, measure)
+    if (!outcome %in% names(oxcgrt)) {
+      return(NULL)
+    }
+    fit <- lm(as.formula(paste(outcome, "~", a1_rhs)), data = oxcgrt)
+    sm <- summary(fit)$coef
+    tibble(
+      outcome = outcome,
+      coef_value = unname(sm["electionproximity_yrs_canrun", "Estimate"]),
+      std_error = unname(sm["electionproximity_yrs_canrun", "Std. Error"]),
+      group = measure
+    )
+  })
+})
+
+fig_pol_updating <- a1_fig_dat |>
+  mutate(
+    policy = case_when(
+      substr(outcome, 1, 1) == "C" ~ "containment and closure policies",
+      substr(outcome, 1, 1) == "H" ~ "health system policies",
+      TRUE ~ NA_character_
+    ),
+    outcome = stringr::str_remove_all(outcome, "_sd|_fluctuation|_changes|_reversals1"),
+    group = recode(
+      group,
+      "_sd" = "Standard Deviation",
+      "_fluctuation" = "Fluctuations",
+      "_changes" = "Changes",
+      "_reversals1" = "Reversals 1"
+    )
+  ) |>
+  ggplot(aes(
+    x = factor(outcome, levels = names(policy_labels)),
+    y = coef_value,
+    color = policy
+  )) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = coef_value - 1.96 * std_error, ymax = coef_value + 1.96 * std_error),
+    width = 0.2
+  ) +
+  labs(x = "Policy Measure", y = "Proximity X Can Run") +
+  facet_wrap(~group, scales = "free_y", ncol = 2) +
+  scale_x_discrete(labels = policy_labels) +
+  theme_bw() +
+  theme(
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+    legend.position = "bottom"
+  )
+
+fig_pol_updating
+ggsave(file.path(fig_dir, "fig_pol_updating.pdf"), fig_pol_updating, width = 8, height = 5)
+```
+
+## Figure C.1. Survey instrument (introduction and treatments) {#fig-c1}
+
+Static Overleaf screenshot. Not generated by this qmd. Introduction, treatment messages, and manipulation checks (`Screenshot_2021-09-08 Umfrage(1–5).png`).
+
+## Figure C.2. Survey instrument (timing) {#fig-c2}
+
+Static Overleaf screenshot. Not generated by this qmd. Timing questions (`Screenshot_2021-09-08 Umfrage(6–8).png`).
+
+## Table D.1. Summary statistics {#tbl-d1}
+
+```{r}
+#| label: si-summary-stats
+
+summ_vars <- thirdwave |>
+  select(
+    age, gender, vaccination_status, vaccine_type, covid_invection,
+    trust_government, trust_experts, trust_state_gov, trust_media, trust_stiko,
+    political_interest, party_id, prior_pfm, prior_vac_pfm, salience_vac,
+    credible, competent, correct, prior_mixed, post_mixed, behav_mixed,
+    incumbent_voting, treatment_measurement
+  )
+
+summary_table <- summ_vars |>
+  mutate(across(everything(), as.numeric)) |>
+  summarise(across(
+    everything(),
+    list(
+      N = \(x) sum(!is.na(x)),
+      Mean = \(x) mean(x, na.rm = TRUE),
+      `Std. Dev.` = \(x) sd(x, na.rm = TRUE),
+      Min = \(x) min(x, na.rm = TRUE),
+      `Pctl. 25` = \(x) quantile(x, 0.25, na.rm = TRUE),
+      `Pctl. 75` = \(x) quantile(x, 0.75, na.rm = TRUE),
+      Max = \(x) max(x, na.rm = TRUE)
+    ),
+    .names = "{.col}__{.fn}"
+  )) |>
+  pivot_longer(everything(), names_to = c("Variable", "Statistic"), names_sep = "__") |>
+  pivot_wider(names_from = "Statistic", values_from = "value") |>
+  arrange(Variable)
+
+knitr::kable(
+  summary_table,
+  digits = 2,
+  col.names = c("Variable", "N", "Mean", "Std. Dev.", "Min", "Pctl. 25", "Pctl. 75", "Max"),
+  caption = "Table D.1. Summary Statistics"
+) |>
+  kableExtra::kable_styling(full_width = FALSE)
+
+writeLines(
+  knitr::kable(summary_table, format = "latex", digits = 2, booktabs = TRUE),
+  file.path(fig_dir, "tab_summary_stats.tex")
+)
+```
+
+## Figure D.1. Prior and posterior beliefs {#fig-priors}
+
+```{r}
+#| label: si-figure-d1
+#| fig-cap: "Figure D.1. Prior and Posterior Beliefs, Belief Updating"
+
+prior <- tibble(value = thirdwave$prior_mixed, Belief = "prior")
+post <- tibble(value = thirdwave$post_mixed, Belief = "posterior")
+
+prior_posterior <- bind_rows(prior, post) |>
+  ggplot(aes(value, fill = Belief)) +
+  geom_density(alpha = 0.2) +
+  xlab("Beliefs about vaccine mixing") +
+  theme_bw()
+
+belief_update_plot <- thirdwave |>
+  ggplot(aes(belief_update)) +
+  geom_histogram(binwidth = 1, alpha = 0.6) +
+  xlab("Belief updating (posterior − prior)") +
+  theme_bw()
+
+belief_update_abs_plot <- thirdwave |>
+  ggplot(aes(belief_update_abs)) +
+  geom_histogram(binwidth = 1, alpha = 0.6) +
+  xlab("Absolute belief updating") +
+  theme_bw()
+
+fig_13 <- grid.arrange(prior_posterior, belief_update_plot, belief_update_abs_plot, ncol = 3)
+ggsave(file.path(fig_dir, "figure_13.pdf"), fig_13, width = 10, height = 4)
+```
+
+## Table E.1. Science-video manipulation check {#tbl-e1}
+
+Science video: share who say contradicting studies are compatible with scientific progress.
+
+```{r}
+#| label: si-table-e1
+
+man_science <- lm_robust(
+  I(manipulation_science == 1) ~ science,
+  data = thirdwave
+)
+summary(man_science)
+
+tab_man_science <- texreg::texreg(
+  man_science,
+  include.ci = FALSE,
+  caption = "Science-video manipulation check",
+  label = "tab:man_science",
+  stars = c(0.01, 0.05, 0.1),
+  custom.coef.map = list("(Intercept)" = "Constant", "science" = "Science video")
+)
+write(tab_man_science, file = file.path(fig_dir, "tab_man_science.tex"))
+```
+
+```{r}
+#| label: si-table-e1-html
+#| results: asis
+
+show_htmlreg(
+  man_science,
+  caption = "Table E.1. Science-video manipulation check (Inconsistencies in Science).",
+  names = "Inconsistencies in Science",
+  coef_map = list("(Intercept)" = "Constant", "science" = "Science video")
+)
+```
+
+## Table E.2. Treatment compliance (first stage) {#tbl-treatment-compliance}
+
+Perceived inconsistency (first stage for the IV).
+
+```{r}
+#| label: si-table-e2
+
+man_iv <- lm_robust(treatment_measurement ~ inconsistent, data = thirdwave)
+summary(man_iv)
+
+tab_man_iv <- texreg::texreg(
+  man_iv,
+  include.ci = FALSE,
+  caption = "Treatment compliance (perceived inconsistency)",
+  label = "TreatmentCompliance",
+  stars = c(0.01, 0.05, 0.1),
+  custom.coef.map = list(
+    "(Intercept)" = "Constant",
+    "inconsistent" = "Instrument (inconsistent information)"
+  )
+)
+write(tab_man_iv, file = file.path(fig_dir, "tab_treatment_compliance.tex"))
+```
+
+```{r}
+#| label: si-table-e2-html
+#| results: asis
+
+show_htmlreg(
+  man_iv,
+  caption = "Table E.2. Treatment Compliance.",
+  names = "Treatment Measurement",
+  coef_map = list(
+    "(Intercept)" = "Constant",
+    "inconsistent" = "Instrument (inconsistent information)"
+  )
+)
+```
+
+## Table E.3. Manipulation perceived timing {#tbl-coefficients}
+
+Perceived timing of recommendations.
+
+```{r}
+#| label: si-table-e3
+
+man_t1_safe <- lm_robust(as.numeric(manipulation_time1) ~ safe_time1, data = thirdwave)
+man_t1_unsafe <- lm_robust(as.numeric(manipulation_time1) ~ unsafe_time1, data = thirdwave)
+man_t2_safe <- lm_robust(as.numeric(manipulation_time2) ~ safe_time2, data = thirdwave)
+man_t2_unsafe <- lm_robust(as.numeric(manipulation_time2) ~ unsafe_time2, data = thirdwave)
+
+tab_man1 <- texreg::texreg(
+  list(man_t1_safe, man_t1_unsafe, man_t2_safe, man_t2_unsafe),
+  include.ci = FALSE,
+  custom.model.names = c("manipulation t1", "manipulation t1", "manipulation t2", "manipulation t2"),
+  caption = "Manipulation perceived timing",
+  label = "table:coefficients",
+  stars = c(0.001, 0.01, 0.05),
+  custom.coef.map = list(
+    "safe_time1" = "safe\\_time1",
+    "unsafe_time1" = "unsafe\\_time1",
+    "safe_time2" = "safe\\_time2",
+    "unsafe_time2" = "unsafe\\_time2"
+  )
+)
+write(tab_man1, file = file.path(fig_dir, "tab_man1.tex"))
+```
+
+```{r}
+#| label: si-table-e3-html
+#| results: asis
+
+show_htmlreg(
+  list(man_t1_safe, man_t1_unsafe, man_t2_safe, man_t2_unsafe),
+  caption = "Table E.3. Manipulation perceived timing.",
+  names = c("manipulation t1", "manipulation t1", "manipulation t2", "manipulation t2"),
+  coef_map = list(
+    "safe_time1" = "safe_time1",
+    "unsafe_time1" = "unsafe_time1",
+    "safe_time2" = "safe_time2",
+    "unsafe_time2" = "unsafe_time2"
+  )
+)
+```
+
+## Table F.1. Inquiry reconciliation {#tbl-inquiry-reconciliation}
+
+## Table F.2. Parameter mapping {#tbl-parameter-mapping}
+
+## Table F.3. Answer strategy {#tbl-answer-strategy}
+
+Hardcoded in `appendix.tex` (inquiry reconciliation, parameter mapping, answer strategy). Not generated from the survey file.
+
+## Table G.1. Ordering: first message against mixing {#tbl-saturated-0}
+
+## Table G.2. Ordering: first message for mixing {#tbl-saturated-1}
+
+Filters use the stored 0/1 `safe_time1`, not a demeaned copy.
+
+```{r}
+#| label: si-order-tables
+
+sat_0 <- fit_saturated_list(
+  filter(thirdwave, safe_time1 == 0),
+  rhs = "inconsistent * trusted * science"
+)
+sat_1 <- fit_saturated_list(
+  filter(thirdwave, safe_time1 == 1),
+  rhs = "inconsistent * trusted * science"
+)
+
+tab_sat_0 <- write_texreg(
+  sat_0,
+  file = file.path(fig_dir, "tab_1_full_0.tex"),
+  caption = "Fully saturated model | first message against mixing",
+  label = "table:saturated_0"
+)
+tab_sat_1 <- write_texreg(
+  sat_1,
+  file = file.path(fig_dir, "tab_1_full_1.tex"),
+  caption = "Fully saturated model | first message supports mixing",
+  label = "table:saturated_1"
+)
+```
+
+```{r}
+#| label: si-order-html
+#| results: asis
+
+texreg::htmlreg(
+  sat_0,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "Table G.1. Fully saturated model | first message against mixing",
+  stars = c(0.01, 0.05, 0.1),
+  custom.coef.map = custom.coef.map,
+  doctype = FALSE
+)
+texreg::htmlreg(
+  sat_1,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "Table G.2. Fully saturated model | first message supports mixing",
+  stars = c(0.01, 0.05, 0.1),
+  custom.coef.map = custom.coef.map,
+  doctype = FALSE
+)
+```
+
+## Table G.3. Saturated model accounting for priors {#tbl-saturated-priors}
+
+```{r}
+#| label: si-table-g3
+
+thirdwave_prior <- thirdwave |>
+  mutate(prior = prior_mixed - mean(prior_mixed, na.rm = TRUE))
+
+sat_priors <- lapply(outcomes, function(y) {
+  d <- with_demeaned_treatments(thirdwave_prior, c(treatment_vars, "prior"))
+  lm_robust(
+    as.formula(paste(y, "~ inconsistent * trusted * science * prior * safe_time1")),
+    data = d
+  )
+})
+
+tab_sat_priors <- write_texreg(
+  sat_priors,
+  file = file.path(fig_dir, "tab_1_full_priors.tex"),
+  caption = "Fully saturated model | accounting for priors",
+  label = "table:saturated_priors"
+)
+
+prior_interactions <- list(
+  "inconsistent:trusted" = "Inconsistent $\\times$ Sender: scientific",
+  "inconsistent:science" = "Inconsistent $\\times$ Science",
+  "prior" = "Priors",
+  "inconsistent:prior" = "Inconsistent $\\times$ Priors",
+  "trusted:prior" = "Sender: scientific $\\times$ Priors",
+  "science:prior" = "Science (deemed optimum can change) $\\times$ Priors",
+  "inconsistent:safe_time1" = "Inconsistent $\\times$ Initial safe",
+  "prior:safe_time1" = "Initial safe $\\times$ Priors",
+  "inconsistent:prior:safe_time1" = "Inconsistent $\\times$ Initial safe $\\times$ Priors"
+)
+
+tab_sat_prior_int <- write_texreg(
+  sat_priors,
+  file = file.path(fig_dir, "tab_1_full_priors_interactions.tex"),
+  caption = "Fully saturated model | priors on mixing and interactions with priors",
+  label = "table:saturated_priors_interactions",
+  coef_map = prior_interactions
+)
+```
+
+```{r}
+#| label: si-table-g3-html
+#| results: asis
+
+show_htmlreg(
+  sat_priors,
+  caption = "Table G.3. Fully saturated model | accounting for priors"
+)
+```
+
+## Table G.4. Priors and interactions {#tbl-saturated-priors-interactions}
+
+```{r}
+#| label: si-table-g4-html
+#| results: asis
+
+show_htmlreg(
+  sat_priors,
+  caption = "Table G.4. Fully saturated model | priors on mixing and interactions with priors",
+  coef_map = prior_interactions
+)
+```
+
+## Figure G.1. Effect of information conditional on prior beliefs {#fig-cate-priors}
+
+Twelve panels: Inconsistent / Safe / Unsafe × credibility, competence, correctness, posterior. Each panel is OLS `y ~ prior_mixed * treat` plotted with `interplot` (histogram of priors). Treatments stay 0/1; Lin demeaning is not used. `safe` and `unsafe` are defined from `info1`/`info2` (R parses `&` before `|`).
+
+```{r}
+#| label: si-figure-g1
+#| fig-cap: "Figure G.1. Effect of information conditional on prior beliefs about vaccine mixing."
+
+cate_dat_g1 <- thirdwave |>
+  mutate(
+    unsafe = as.numeric(info1 == 1 | info1 == 2 & info2 == 1 | info2 == 2),
+    safe = as.numeric(info1 == 3 | info1 == 4 & info2 == 3 | info2 == 4)
+  )
+
+cate_panel <- function(data, y, treat, ylab, title) {
+  m <- lm(as.formula(paste(y, "~ prior_mixed *", treat)), data = data)
+  interplot::interplot(
+    m = m,
+    var1 = treat,
+    var2 = "prior_mixed",
+    hist = TRUE,
+    adjCI = FALSE
+  ) +
+    geom_hline(
+      yintercept = 0,
+      linetype = "longdash",
+      linewidth = 0.35,
+      colour = "#B55555"
+    ) +
+    ylab(ylab) +
+    xlab("Prior Beliefs Vaccine Mixing") +
+    ggtitle(title) +
+    theme_bw()
+}
+
+M1_plot <- cate_panel(cate_dat_g1, "credible", "inconsistent", "Treatment effect on sender credibility", "Inconsistent Information")
+M2_plot <- cate_panel(cate_dat_g1, "credible", "safe", "Treatment effect on sender credibility", "Safe Information")
+M3_plot <- cate_panel(cate_dat_g1, "credible", "unsafe", "Treatment effect on sender credibility", "Unsafe Information")
+M4_plot <- cate_panel(cate_dat_g1, "competent", "inconsistent", "Treatment effect on sender competence", "Inconsistent Information")
+M5_plot <- cate_panel(cate_dat_g1, "competent", "safe", "Treatment effect on sender competence", "Safe Information")
+M6_plot <- cate_panel(cate_dat_g1, "competent", "unsafe", "Treatment effect on sender competence", "Unsafe Information")
+M7_plot <- cate_panel(cate_dat_g1, "correct", "inconsistent", "Treatment effect information correct", "Inconsistent Information")
+M8_plot <- cate_panel(cate_dat_g1, "correct", "safe", "Treatment effect information correct", "Safe Information")
+M9_plot <- cate_panel(cate_dat_g1, "correct", "unsafe", "Treatment effect information correct", "Unsafe Information")
+M7a_plot <- cate_panel(cate_dat_g1, "post_mixed", "inconsistent", "Posterior Beliefs", "Inconsistent Information")
+M8a_plot <- cate_panel(cate_dat_g1, "post_mixed", "safe", "Posterior Beliefs", "Safe Information")
+M9a_plot <- cate_panel(cate_dat_g1, "post_mixed", "unsafe", "Posterior Beliefs", "Unsafe Information")
+
+fig_1 <- grid.arrange(
+  M1_plot, M2_plot, M3_plot,
+  M4_plot, M5_plot, M6_plot,
+  M7_plot, M8_plot, M9_plot,
+  M7a_plot, M8a_plot, M9a_plot,
+  ncol = 3
+)
+ggsave(file.path(fig_dir, "fig_1.pdf"), fig_1, width = 10, height = 9)
+```
+
+## Table G.5. High priors {#tbl-saturated-high-priors}
+
+## Table G.6. Medium priors {#tbl-saturated-med-priors}
+
+## Table G.7. Low priors {#tbl-saturated-low-priors}
+
+Cuts: low `< 3.3`, medium `(3.3, 6.6)`, high `> 6.6`. The previous high-priors table used `< 6.6` (low and medium stacked). Demeaning is within subgroup.
+
+```{r}
+#| label: si-prior-subgroups
+
+dat_low <- filter(thirdwave, prior_mixed < prior_low)
+dat_med <- filter(thirdwave, prior_mixed > prior_low & prior_mixed < prior_high)
+dat_high <- filter(thirdwave, prior_mixed > prior_high)
+
+c(
+  low = nrow(dat_low),
+  med = nrow(dat_med),
+  high = nrow(dat_high),
+  excluded_at_cuts = nrow(thirdwave) - nrow(dat_low) - nrow(dat_med) - nrow(dat_high)
+)
+
+sat_low <- fit_saturated_list(dat_low)
+sat_med <- fit_saturated_list(dat_med)
+sat_high <- fit_saturated_list(dat_high)
+
+tab_sat_low <- write_texreg(
+  sat_low,
+  file = file.path(fig_dir, "tab_1_low_priors.tex"),
+  caption = "Fully saturated model, subjects with low priors",
+  label = "tab:saturated_low_priors"
+)
+tab_sat_med <- write_texreg(
+  sat_med,
+  file = file.path(fig_dir, "tab_1_med_priors.tex"),
+  caption = "Fully saturated model, subjects with middling priors",
+  label = "tab:saturated_med_priors"
+)
+tab_sat_high <- write_texreg(
+  sat_high,
+  file = file.path(fig_dir, "tab_1_high_priors.tex"),
+  caption = "Fully saturated model, subjects with high priors",
+  label = "tab:saturated_high_priors"
+)
+```
+
+```{r}
+#| label: si-tables-g5-g7-html
+#| results: asis
+
+show_htmlreg(sat_high, caption = "Table G.5. Fully saturated model, subjects with high priors")
+show_htmlreg(sat_med, caption = "Table G.6. Fully saturated model, subjects with middling priors")
+show_htmlreg(sat_low, caption = "Table G.7. Fully saturated model, subjects with low priors")
+```
+
+## Table G.8. ITT {#tbl-g8}
+
+## Table G.9. IV {#tbl-g9}
+
+Same 0/1 `inconsistent` as Figure 5. Outcomes match Table 3 (including recoded message-2 measures). Overleaf currently hardcodes `post_mixed` and `belief_update_abs` instead.
+
+```{r}
+#| label: si-tables-g8-g9
+
+tab_itt <- texreg::texreg(
+  models_basic,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "ITT: inconsistency assignment",
+  stars = c(0.01, 0.05, 0.1),
+  custom.note = table_note_outcomes
+)
+write(tab_itt, file = file.path(fig_dir, "tab_itt.tex"))
+
+tab_iv <- texreg::texreg(
+  models_iv,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "IV: perceived inconsistency instrumented by assignment",
+  stars = c(0.01, 0.05, 0.1),
+  custom.note = table_note_outcomes
+)
+write(tab_iv, file = file.path(fig_dir, "tab_iv.tex"))
+```
+
+```{r}
+#| label: si-tables-g8-g9-html
+#| results: asis
+
+show_htmlreg(
+  models_basic,
+  caption = "Table G.8. ITT: inconsistency assignment. Same outcomes as Table 3."
+)
+show_htmlreg(
+  models_iv,
+  caption = "Table G.9. IV: perceived inconsistency instrumented by assignment. Same outcomes as Table 3.",
+  coef_map = iv_coef_map
+)
+```
+
+# 6. Additional
+
+Objects not in the paper: four-type OLS by prior, pooled raw means, IV first-stage plot, unsaturated specification.
+
+## Information types by prior
+
+Predicted outcomes by four-level message type and prior (reference: unsafe-unsafe).
+
+```{r}
+#| label: additional-info-types-by-prior
+#| fig-cap: "Additional (not in paper). Information types by prior, relative to unsafe-unsafe."
+
+cate_dat <- thirdwave |>
+  mutate(
+    types = factor(types, c("unsafe-unsafe", "unsafe-safe", "safe-unsafe", "safe-safe"))
+  )
+
+cate_fits <- lapply(c("credible", "competent", "correct", "post_mixed"), function(y) {
+  lm_robust(as.formula(paste(y, "~ types * prior_mixed")), data = cate_dat)
+})
+names(cate_fits) <- c("Credible", "Competent", "Correct", "Belief (mixing)")
+
+grid_prior <- seq(0, 10, by = 0.5)
+cate_plot_dat <- map_dfr(names(cate_fits), function(nm) {
+  fit <- cate_fits[[nm]]
+  b <- coef(fit)
+  V <- vcov(fit)
+  types_ok <- c("unsafe-safe", "safe-unsafe", "safe-safe")
+  map_dfr(types_ok, function(tp) {
+    tterm <- paste0("types", tp)
+    pterm <- paste0("types", tp, ":prior_mixed")
+    tibble(prior = grid_prior, outcome = nm, type = tp) |>
+      mutate(
+        estimate = b[[tterm]] + b[[pterm]] * prior,
+        se = sqrt(V[tterm, tterm] + (prior^2) * V[pterm, pterm] + 2 * prior * V[tterm, pterm]),
+        conf.low = estimate - 1.96 * se,
+        conf.high = estimate + 1.96 * se
+      )
+  })
+})
+
+fig_types_by_prior <- cate_plot_dat |>
+  ggplot(aes(prior, estimate, color = type, fill = type)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.15, color = NA) +
+  geom_line() +
+  facet_wrap(~outcome, scales = "free_y") +
+  xlab("Prior: mixing is unsafe (0) to safe (10)") +
+  ylab("Effect relative to unsafe-unsafe") +
+  labs(caption = "OLS with type × prior. 95% intervals.") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+fig_types_by_prior
+ggsave(
+  file.path(fig_dir, "additional_info_types_by_prior.pdf"),
+  fig_types_by_prior,
+  width = 9,
+  height = 6
+)
+```
+
+## Pooled raw means (not in the paper)
+
+```{r}
+#| label: additional-raw-pooled
+
+summary_pooled <-
+  thirdwave |>
+  mutate(
+    science = info_treat,
+    trust = sender_treat,
+    Z = paste0(safe_time1, "/", safe_time2)
+  ) |>
+  transmute(
+    safe_time1, safe_time2, science, trust, Z,
+    credible = as.numeric(credible),
+    competent = as.numeric(competent),
+    correct = as.numeric(correct),
+    convinced = post_mixed,
+    act = behav_mixed
+  ) |>
+  pivot_longer(
+    c(credible, competent, correct, convinced, act),
+    names_to = "Y",
+    values_to = "val"
+  ) |>
+  group_by(safe_time1, safe_time2, science, trust, Z, Y) |>
+  summarise(
+    n = sum(!is.na(val)),
+    mean = mean(val, na.rm = TRUE),
+    sd = sd(val, na.rm = TRUE),
+    se = sd / sqrt(n),
+    tcrit = qt(0.975, df = pmax(n - 1, 1)),
+    lwr = mean - tcrit * se,
+    upr = mean + tcrit * se,
+    .groups = "drop"
+  ) |>
+  mutate(
+    trust_lab = if_else(trust == 1, "high-trust institution", "low-trust institution"),
+    science_lab = science_lab(science),
+    cond = paste(trust_lab, science_lab, sep = "\n"),
+    Z = recode(
+      Z,
+      "0/0" = "unsafe-unsafe",
+      "0/1" = "unsafe-safe",
+      "1/0" = "safe-unsafe",
+      "1/1" = "safe-safe"
+    ),
+    Z = factor(Z, c("unsafe-unsafe", "unsafe-safe", "safe-unsafe", "safe-safe")),
+    Y = factor(
+      Y,
+      c("competent", "credible", "correct", "convinced", "act"),
+      c("competent", "credible", "correct", "belief\n(trusts mixing)", "behavior\n(would mix)")
+    )
+  )
+
+raw_patterns <- ggplot(summary_pooled, aes(x = Z, y = mean)) +
+  facet_grid(cond ~ Y) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.15) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Policy 1 / Policy 2", y = "")
+
+raw_patterns
+ggsave(file.path(fig_dir, "raw_patterns.pdf"), raw_patterns, width = 8, height = 8)
+```
+
+```{r}
+#| label: additional-iv-first-stage-plot
+
+tm_summary <- thirdwave |>
+  mutate(
+    prior = prior_group(prior_mixed),
+    science = info_treat,
+    trust = sender_treat,
+    Z = paste0(safe_time1, "/", safe_time2),
+    val = as.numeric(treatment_measurement)
+  ) |>
+  group_by(safe_time1, safe_time2, science, trust, Z, prior) |>
+  summarise(
+    n = sum(!is.na(val)),
+    mean = mean(val, na.rm = TRUE),
+    sd = sd(val, na.rm = TRUE),
+    se = sd / sqrt(n),
+    tcrit = qt(0.975, df = pmax(n - 1, 1)),
+    lwr = mean - tcrit * se,
+    upr = mean + tcrit * se,
+    .groups = "drop"
+  ) |>
+  mutate(
+    trust_lab = if_else(trust == 1, "high-trust institution", "low-trust institution"),
+    science_lab = science_lab(science),
+    cond = paste(trust_lab, science_lab, sep = "\n"),
+    Z_lab = recode(
+      Z,
+      "0/0" = "unsafe/unsafe",
+      "0/1" = "unsafe/safe",
+      "1/0" = "safe/unsafe",
+      "1/1" = "safe/safe"
+    ),
+    Z_lab = factor(Z_lab, c("unsafe/unsafe", "unsafe/safe", "safe/unsafe", "safe/safe"))
+  )
+
+raw_tm <- ggplot(tm_summary, aes(x = Z_lab, y = mean, color = prior, group = prior)) +
+  facet_wrap(~cond, ncol = 2) +
+  geom_point(position = position_dodge(0.45), size = 2.3) +
+  geom_errorbar(
+    aes(ymin = lwr, ymax = upr),
+    width = 0.12,
+    position = position_dodge(0.45)
+  ) +
+  theme_bw() +
+  labs(
+    x = "Policy message 1 / Policy message 2",
+    y = "Perceived inconsistency (mean ± 95% CI)",
+    color = "Prior"
+  ) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
+
+raw_tm
+ggsave(file.path(fig_dir, "iv_first_stage.pdf"), raw_tm, width = 7, height = 8)
+```
+
+## Unsaturated specification (not in the paper)
+
+```{r}
+#| label: additional-unsaturated
+
+sat_unsat <- lapply(outcomes, function(y) {
+  lm_robust(as.formula(paste(y, "~ inconsistent * trusted * science")), data = thirdwave)
+})
+
+tab_1 <- texreg::texreg(
+  sat_unsat,
+  include.ci = FALSE,
+  custom.model.names = mod_names,
+  caption = "Saturated in T1 T2 T5 only (not in paper)",
+  omit.coef = c("(Intercept)"),
+  stars = c(0.001, 0.01, 0.05, 0.1)
+)
+write(tab_1, file = file.path(fig_dir, "tab_1.tex"))
+```
+
+```{r}
+#| label: additional-unsaturated-html
+#| results: asis
+
+show_htmlreg(
+  sat_unsat,
+  caption = "Additional (not in paper). Saturated in T1 T2 T5 only.",
+  coef_map = NULL
+)
+```
+
+# 7. Export
+
+Respondent-level data are not saved. `lm_robust` objects include the estimation frame; we store coefficients and table strings only.
+
+```{r}
+#| label: export-rdata
+
+coef_tab <- function(mods, labels = mod_names) {
+  purrr::map2_dfr(mods, labels, function(m, nm) {
+    tibble::tibble(
+      model = nm,
+      term = names(m$coefficients),
+      estimate = as.numeric(m$coefficients),
+      std.error = as.numeric(m$std.error)
+    )
+  })
+}
+
+estimates <- list(
+  treatment_means = treatment_means,
+  tab_sat = tab_sat,
+  saturated = coef_tab(saturated),
+  sat_0 = coef_tab(sat_0),
+  sat_1 = coef_tab(sat_1),
+  sat_priors = coef_tab(sat_priors),
+  sat_low = coef_tab(sat_low),
+  sat_med = coef_tab(sat_med),
+  sat_high = coef_tab(sat_high),
+  man_science = coef_tab(list(man_science), "science_check"),
+  man_iv = coef_tab(list(man_iv), "first_stage"),
+  itt = coef_tab(models_basic),
+  iv = coef_tab(models_iv),
+  oxcgrt_gri = coef_tab(a1_models, a1_names)
+)
+
+save(estimates, file = file.path(fig_dir, "analysis.Rdata"))
+```
