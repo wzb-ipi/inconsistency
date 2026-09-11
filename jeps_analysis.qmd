@@ -17,21 +17,20 @@ execute:
 
 This file produces the JEPS draft exhibits. 
 
-**Plot layout (order / prior / party).** Columns are the five outcomes. Rows are coefficient type: main effects (inconsistency, trusted sender, science video); two-way interactions (inc×trusted, inc×science, trusted×science); three-way (inc×trusted×science). Within a panel, *y* is the effect name and *x* is the Lin linear combination, with horizontal CIs (`geom_errorbar`, `orientation = "y"`). Colors dodge a grouping variable: first-message order (main-text order plot), prior group (main-text prior plot), or party (appendix). Order and prior/party graphs are pulled from **one pooled interacted model**, not subsample saturated fits. The science-conditional figure is a different family (outcomes on *x*, not the coefficient grid).
+**Plot layout (order / prior / party).** Columns in **appendix** grids are the five outcomes, left to right: Belief, Credible, Behave, Competent, Correct, one continuous `facet_grid`. **Main-text** exhibits drop Correct and keep Belief, Credible, Behave, Competent (`outcomes_main`). Rows are coefficient type: main effects (inconsistency, trusted sender, science video); two-way interactions (inc×trusted, inc×science, trusted×science); three-way (inc×trusted×science). Within a panel, *y* is the effect name and *x* is the Lin linear combination, with horizontal CIs (`geom_errorbar`, `orientation = "y"`). Colors dodge a grouping variable: first-message order (appendix order plot), prior group (appendix prior plot), or party (appendix). Order and prior/party graphs are pulled from **one pooled interacted model**, not subsample saturated fits. The science/trust-conditional figure is a different family from the coefficient grids: two facet rows ($Z_s$, $Z_t$), four main-text outcome columns (Correct stays appendix), horizontal CIs, shared $x$-scale, no three-block spacers. The order-conditional coefficient grid (`fig_3_order_effects.pdf`) and the prior-group coefficient grid (`fig_6_prior_effects.pdf`) are appendix (five outcomes). The main-text $\beta_1$, $\beta_2$, $\beta_r$ figure is two stacked panels, four outcomes (Belief, Credible, Behave, Competent): top $\beta_r$ and its science/trust shifts with a shared $x$-scale; bottom $\beta_1$ and $\beta_2$ on all four outcomes with `free_x`.
 
-**Outcomes.** Credible; Competent; Correct; **Belief = conviction of the second message**; **Behave = willingness to follow the second message**.
+**Outcomes.** **Belief** (conviction of the second message); **Credible**; **Behave** (willingness to follow the second message); Competent; Correct. Fit all five, then subset columns for main-text texreg/ggplot. All five are divided by 10 after construction so analysis, tables, and figures are on $[0,1]$.
 
-**Treatments (PAP / DeclareDesign).** $Z_1$ trusted sender; $Z_2$ science video; $Z_3$ first-signal pro-mixing (`safe_time1`); $Z_4$ inconsistency. Table 2 is the locked estimator: demeaned `inconsistent * trusted * science * safe_time1`.
+**Treatments (paper letters).** $Z_r$ inconsistency / reversal (`inconsistent`), $Z_r=\mathbf{1}\{Z_1\neq Z_2\}$; $Z_1$ first message safe (`safe_time1`); $Z_t$ trusted sender (`trusted`); $Z_s$ science video (`science`). $Z_2$ is second message safe (`safe_time2`). Display order in the main spec is $Z_r,Z_1,Z_t,Z_s$. PAP / DeclareDesign letters were different: PAP $Z_1\to Z_t$, PAP $Z_2\to Z_s$, PAP $Z_3\to Z_1$, PAP $Z_4\to Z_r$. Table 2 is the locked estimator: demeaned `inconsistent * trusted * science * safe_time1`; only displayed labels and order change.
 
 | Object | Overleaf file | label |
 |:-------|:--------------|:------|
 | [Figure 1: public debate](#fig-prior) | `jeps_assets/fig_1_debate_priors.pdf` | `fig:Prior` |
 | [Figure 2: raw](#fig-raw) | `jeps_assets/fig_2_raw_disagg.pdf` | `fig:raw` |
 | [Table 2: saturated](#tbl-saturated) | `jeps_assets/tab_2_saturated.tex` | `table:saturated` |
-| [Figure 3: order](#fig-order) | `jeps_assets/fig_3_order_effects.pdf` | `fig:order` |
-| [Figure 4: ITT/LATE](#fig-itt) | `jeps_assets/fig_4_itt_late.pdf` | `fig:ITT` |
-| [Figure 5: science-conditional](#fig-science) | `jeps_assets/fig_5_science_conditional.pdf` | `fig:ScienceInformation` |
-| [Figure 6: prior](#fig-prior-cond) | `jeps_assets/fig_6_prior_effects.pdf` | `fig:prior_cond` |
+| [Figure: $\beta_1$, $\beta_2$, $\beta_r$](#fig-mixed) | `jeps_assets/fig_7_abc_parameters.pdf` | `fig:mixed_int` (main text) |
+| [Figure: ITT/LATE](#fig-itt) | `jeps_assets/fig_4_itt_late.pdf` | `fig:ITT` (filename kept; LaTeX number shifts) |
+| [Figure: science/trust-conditional](#fig-science) | `jeps_assets/fig_5_science_trust_conditional.pdf` | `fig:ScienceInformation` |
 | [Figure A.1: theory policy](#fig-policy) | `jeps_assets/fig_a1_policy.pdf` | `fig:policy` |
 | [Figure A.2: theory credibility](#fig-credibility) | `jeps_assets/fig_a2_credibility.pdf` | `fig:credibility` |
 | [Table B.1: OxCGRT](#tbl-coefficients-policy) | `jeps_assets/tab_b1_oxcgrt.tex` | `table:coefficients:policy` |
@@ -39,8 +38,11 @@ This file produces the JEPS draft exhibits.
 | [Table D.1: summary](#si-summary-stats) | `jeps_assets/tab_d1_summary_stats.tex` | descriptives |
 | [Figure D.1: priors](#fig-priors-si) | `jeps_assets/fig_d1_priors.pdf` | `fig:priors` |
 | [Tables E.1--E.3: manipulation](#si-manipulation) | `tab_e1_man_science.tex`, `tab_e2_treatment_compliance.tex`, `tab_e3_timing_checks.tex` | appendix |
-| [Tables G.1--G.5: order/prior extras](#tbl-prior-sub) | `tab_g1_order_unsafe.tex`--`tab_g5_low_priors.tex` | appendix extras |
-| [Figure G.1: party](#fig-party) | `jeps_assets/fig_g1_party_effects.pdf` | `fig:party` |
+| [Appendix: order grid](#fig-order) | `jeps_assets/fig_3_order_effects.pdf` | `fig:order` (appendix; was main-text Figure 3) |
+| [Appendix: mixed messages](#tbl-mixed) | `jeps_assets/tab_3_mixed_messages.tex` | `table:mixed` (appendix; was main-text Table 3) |
+| [Appendix: prior grid](#fig-prior-cond) | `jeps_assets/fig_6_prior_effects.pdf` | `fig:prior_cond` (appendix; with G prior subsample tables) |
+| [Tables G: order/prior extras](#tbl-prior-sub) | `tab_g1_order_unsafe.tex`--`tab_g5_low_priors.tex` | appendix extras |
+| [Figure: party](#fig-party) | `jeps_assets/fig_g1_party_effects.pdf` | `fig:party` (filename kept; LaTeX letter/number may shift) |
 | [Tables G.6--G.7: ITT / IV](#tbl-itt-iv) | `tab_g6_itt.tex`, `tab_g7_iv.tex` | appendix |
 
 # 1. Housekeeping
@@ -62,7 +64,8 @@ pacman::p_load(
   knitr,
   kableExtra,
   gridExtra,
-  latex2exp
+  latex2exp,
+  patchwork
 )
 
 fig_dir <- "jeps_assets"
@@ -96,17 +99,29 @@ stopifnot(file.exists(survey_file))
 stopifnot(file.exists(vignette_file))
 stopifnot(file.exists(election_file))
 
-outcomes <- c(
-  "credible", "competent", "correct",
-  "convinced_of_message_2", "behave_as_message_2"
+outcomes_all <- c(
+  "convinced_of_message_2",
+  "credible",
+  "behave_as_message_2",
+  "competent",
+  "correct"
 )
+outcomes_main <- outcomes_all[seq_len(4)]
+outcomes <- outcomes_all
 mod_names <- c(
-  "Credible", "Competent", "Correct",
-  "Belief", "Behave"
+  "Belief",
+  "Credible",
+  "Behave",
+  "Competent",
+  "Correct"
 )
+mod_names_main <- mod_names[seq_len(4)]
 outcome_labels <- mod_names
+outcome_labels_main <- mod_names_main
 
 treatment_vars <- c("inconsistent", "trusted", "science", "safe_time1")
+mixed_vars <- c("mixed_1", "mixed_2", "science", "trusted")
+mixed_rhs <- "mixed_1 * mixed_2 * science * trusted"
 
 prior_low <- 3.3
 prior_high <- 6.6
@@ -125,13 +140,15 @@ with_demeaned_treatments <- function(data, vars = treatment_vars) {
     mutate(across(all_of(present), \(x) as.numeric(x) - mean(as.numeric(x), na.rm = TRUE)))
 }
 
-fit_saturated <- function(data, y, rhs = "inconsistent * trusted * science * safe_time1") {
-  d <- with_demeaned_treatments(data)
+fit_saturated <- function(data, y, rhs = "inconsistent * trusted * science * safe_time1",
+                          vars = treatment_vars) {
+  d <- with_demeaned_treatments(data, vars)
   estimatr::lm_robust(as.formula(paste(y, "~", rhs)), data = d)
 }
 
-fit_saturated_list <- function(data, y_vec = outcomes, rhs = "inconsistent * trusted * science * safe_time1") {
-  lapply(y_vec, function(y) fit_saturated(data, y, rhs))
+fit_saturated_list <- function(data, y_vec = outcomes, rhs = "inconsistent * trusted * science * safe_time1",
+                               vars = treatment_vars) {
+  lapply(y_vec, function(y) fit_saturated(data, y, rhs, vars))
 }
 
 # Linear combination of coefficients; 95% CI from the fit vcov (delta method).
@@ -162,13 +179,13 @@ lincom_fit <- function(fit, pairs) {
 # Effect skeleton shared by order / prior / party plots.
 effect_defs <- tibble::tribble(
   ~row_type, ~effect, ~base,
-  "Main effects", "Inconsistency", "inconsistent",
+  "Main effects", "Reversals", "inconsistent",
   "Main effects", "Trusted sender", "trusted",
   "Main effects", "Science video", "science",
-  "Two-way\ninteractions", "Inc. × Trusted", "inconsistent:trusted",
-  "Two-way\ninteractions", "Inc. × Science", "inconsistent:science",
+  "Two-way\ninteractions", "Reversals × Trusted", "inconsistent:trusted",
+  "Two-way\ninteractions", "Reversals × Science", "inconsistent:science",
   "Two-way\ninteractions", "Trusted × Science", "trusted:science",
-  "Three-way\ninteraction", "Inc. × Trusted × Science", "inconsistent:trusted:science"
+  "Three-way\ninteraction", "Z_r × Z_t × Z_s", "inconsistent:trusted:science"
 ) |>
   mutate(
     row_type = factor(
@@ -194,8 +211,19 @@ pairs_at_group <- function(base, dummy) {
   }
 }
 
-plot_cond_grid <- function(dat, color_var, color_lab, caption, dodge = 0.55) {
-  dat |>
+plot_cond_grid <- function(dat, color_var, color_lab, caption, dodge = 0.55,
+                           row_facets = TRUE, dodge_reverse = FALSE,
+                           scales = NULL, extra = NULL) {
+  # Discrete y + scale_y_discrete(limits = rev): first factor level is at the
+  # *bottom* of a cluster unless reverse = TRUE (then first level is at the top).
+  pos <- position_dodge(width = dodge, reverse = dodge_reverse)
+
+  # facet_grid(. ~ outcome) alphabetizes if outcome is character.
+  if ("outcome" %in% names(dat) && is.factor(dat$outcome)) {
+    dat$outcome <- factor(as.character(dat$outcome), levels = levels(dat$outcome))
+  }
+
+  p <- dat |>
     ggplot(aes(
       x = estimate,
       y = effect,
@@ -203,18 +231,32 @@ plot_cond_grid <- function(dat, color_var, color_lab, caption, dodge = 0.55) {
       shape = .data[[color_var]]
     )) +
     geom_vline(xintercept = 0, linetype = "longdash") +
-    geom_point(position = position_dodge(width = dodge), size = 2.2) +
+    geom_point(position = pos, size = 2.2) +
     geom_errorbar(
       aes(xmin = conf.low, xmax = conf.high),
       orientation = "y",
-      position = position_dodge(width = dodge),
+      position = pos,
       width = 0.18
-    ) +
-    facet_grid(row_type ~ outcome, scales = "free_y", space = "free_y") +
+    )
+
+  if (isTRUE(row_facets)) {
+    p <- p + facet_grid(
+      row_type ~ outcome,
+      scales = if (is.null(scales)) "free_y" else scales,
+      space = "free_y"
+    )
+  } else {
+    p <- p + facet_grid(
+      . ~ outcome,
+      scales = if (is.null(scales)) "fixed" else scales
+    )
+  }
+
+  p <- p +
     scale_y_discrete(limits = rev) +
     xlab("Lin conditional effect") +
     ylab("") +
-    labs(color = color_lab, shape = color_lab, caption = caption) +
+    labs(color = color_lab, shape = color_lab) +
     theme_bw() +
     theme(
       axis.text.x = element_text(size = 11),
@@ -226,6 +268,10 @@ plot_cond_grid <- function(dat, color_var, color_lab, caption, dodge = 0.55) {
       legend.title = element_text(size = 12),
       legend.position = "bottom"
     )
+
+  if (is.function(extra)) p <- extra(p, dat)
+  if (!is.null(caption)) p <- p + labs(caption = caption)
+  p
 }
 
 # Star legend only in the footer. Long notes in an l-multicolumn
@@ -233,22 +279,44 @@ plot_cond_grid <- function(dat, color_var, color_lab, caption, dodge = 0.55) {
 table_note_outcomes <- "%stars"
 
 # Full four-way map: do not hide rows.
+# Display order: H1--H3 block (Z_r, Z_r×Z_s, Z_r×Z_t), then remaining
+# coefficients with Z_1 before Z_t, Z_s.
 full.coef.map <- list(
-  "inconsistent" = "Inconsistent ($Z_4$)",
-  "trusted" = "Trusted sender ($Z_1$)",
-  "science" = "Science video ($Z_2$)",
-  "safe_time1" = "First message safe ($Z_3$)",
-  "inconsistent:trusted" = "Inconsistent $\\times$ Trusted",
-  "inconsistent:science" = "Inconsistent $\\times$ Science",
+  "inconsistent" = "Reversals ($Z_r$)",
+  "inconsistent:science" = "Reversals $\\times$ Science",
+  "inconsistent:trusted" = "Reversals $\\times$ Trusted",
+  "safe_time1" = "First message safe ($Z_1$)",
+  "trusted" = "Trusted sender ($Z_t$)",
+  "science" = "Science video ($Z_s$)",
   "trusted:science" = "Trusted $\\times$ Science",
-  "inconsistent:safe_time1" = "Inconsistent $\\times$ First safe",
+  "inconsistent:safe_time1" = "Reversals $\\times$ First safe",
   "trusted:safe_time1" = "Trusted $\\times$ First safe",
   "science:safe_time1" = "Science $\\times$ First safe",
-  "inconsistent:trusted:science" = "Inconsistent $\\times$ Trusted $\\times$ Science",
-  "inconsistent:trusted:safe_time1" = "Inconsistent $\\times$ Trusted $\\times$ First safe",
-  "inconsistent:science:safe_time1" = "Inconsistent $\\times$ Science $\\times$ First safe",
-  "trusted:science:safe_time1" = "Trusted $\\times$ Science $\\times$ First safe",
-  "inconsistent:trusted:science:safe_time1" = "Inconsistent $\\times$ Trusted $\\times$ Science $\\times$ First safe"
+  "inconsistent:trusted:science" = "$Z_r \\times Z_t \\times Z_s$",
+  "inconsistent:trusted:safe_time1" = "$Z_r \\times Z_t \\times Z_1$",
+  "inconsistent:science:safe_time1" = "$Z_r \\times Z_s \\times Z_1$",
+  "trusted:science:safe_time1" = "$Z_t \\times Z_s \\times Z_1$",
+  "inconsistent:trusted:science:safe_time1" = "$Z_r \\times Z_t \\times Z_s \\times Z_1$"
+)
+
+# Same 2×2×2×2 saturation, Z_1/Z_2 parameterization.
+# R term order follows mixed_1 * mixed_2 * science * trusted.
+mixed.coef.map <- list(
+  "mixed_1" = "First message safe ($Z_1$)",
+  "mixed_2" = "Second message safe ($Z_2$)",
+  "trusted" = "Trusted sender ($Z_t$)",
+  "science" = "Science video ($Z_s$)",
+  "mixed_1:mixed_2" = "First $\\times$ Second safe ($-2\\beta_r$)",
+  "mixed_1:trusted" = "First safe $\\times$ Trusted",
+  "mixed_2:trusted" = "Second safe $\\times$ Trusted",
+  "mixed_1:science" = "First safe $\\times$ Science",
+  "mixed_2:science" = "Second safe $\\times$ Science",
+  "science:trusted" = "Science $\\times$ Trusted",
+  "mixed_1:mixed_2:trusted" = "$Z_1 \\times Z_2 \\times Z_t$",
+  "mixed_1:mixed_2:science" = "$Z_1 \\times Z_2 \\times Z_s$",
+  "mixed_1:science:trusted" = "$Z_1 \\times Z_s \\times Z_t$",
+  "mixed_2:science:trusted" = "$Z_2 \\times Z_s \\times Z_t$",
+  "mixed_1:mixed_2:science:trusted" = "$Z_1 \\times Z_2 \\times Z_s \\times Z_t$"
 )
 
 iv_coef_map <- list(
@@ -258,7 +326,9 @@ iv_coef_map <- list(
 write_texreg <- function(models, file, caption, label,
                          coef_map = full.coef.map,
                          names = mod_names,
-                         note = table_note_outcomes) {
+                         note = table_note_outcomes,
+                         tabular = NULL,
+                         digits = 3) {
   tab <- texreg::texreg(
     models,
     include.ci = FALSE,
@@ -267,10 +337,27 @@ write_texreg <- function(models, file, caption, label,
     stars = c(0.01, 0.05, 0.1),
     custom.coef.map = coef_map,
     label = label,
-    custom.note = note
+    custom.note = note,
+    digits = digits
   )
   # texreg may leave \item from a list-style note inside \multicolumn.
   tab <- gsub("\\\\scriptsize\\{\\\\item ", "\\\\scriptsize{", tab)
+  if (is.null(tabular)) {
+    if (length(models) == 5) {
+      # Vertical rules only at ||: Belief, Credible || Behave, Competent || Correct
+      tabular <- "l c c || c c || c"
+    } else if (length(models) == 4) {
+      # Main text: Belief, Credible || Behave, Competent
+      tabular <- "l c c || c c"
+    }
+  }
+  if (!is.null(tabular)) {
+    tab <- sub(
+      "\\\\begin\\{tabular\\}\\{[^}]+\\}",
+      paste0("\\\\begin{tabular}{", tabular, "}"),
+      tab
+    )
+  }
   write(tab, file = file)
   invisible(tab)
 }
@@ -285,6 +372,7 @@ show_htmlreg <- function(models, caption, names = mod_names,
       custom.model.names = names,
       caption = caption,
       stars = c(0.01, 0.05, 0.1),
+      digits = 3,
       doctype = FALSE
     ),
     extra
@@ -315,6 +403,13 @@ science_lab <- function(x) {
     "science video (deemed optimum can change)",
     "no science video"
   )
+}
+
+# Main-text exhibits: four outcomes. Fits stay on all five.
+keep_main_outcomes <- function(dat) {
+  dat |>
+    filter(outcome %in% outcome_labels_main) |>
+    mutate(outcome = factor(outcome, outcome_labels_main))
 }
 ```
 
@@ -407,8 +502,11 @@ thirdwave <-
     ),
     convinced_of_message_2 = safe_time2 * post_mixed + (1 - safe_time2) * (10 - post_mixed),
     behave_as_message_2 = safe_time2 * behav_mixed + (1 - safe_time2) * (10 - behav_mixed),
-    prior_g = prior_group(prior_mixed)
-  )
+    prior_g = prior_group(prior_mixed),
+    mixed_1 = as.numeric(safe_time1),
+    mixed_2 = as.numeric(safe_time2)
+  ) |>
+  mutate(across(all_of(outcomes), \(x) as.numeric(x) / 10))
 
 # Party: labelled values if present; otherwise a standard 1--9 map.
 # Combine CDU and CSU before any party interaction.
@@ -520,7 +618,7 @@ summary_data <-
     act = as.numeric(behave_as_message_2)
   ) |>
   pivot_longer(
-    c(credible, competent, correct, convinced, act),
+    c(convinced, credible, act, competent, correct),
     names_to = "Y",
     values_to = "val"
   ) |>
@@ -585,13 +683,19 @@ summary_data <- bind_rows(
   mutate(
     Y = factor(
       Y,
-      c("competent", "credible", "correct", "convinced", "act"),
-      c("Competent", "Credible", "Correct", "Belief\n(conviction of msg 2)", "Behave\n(follow msg 2)")
+      c("convinced", "credible", "act", "competent", "correct"),
+      c("Belief\n(conviction of msg 2)", "Credible", "Behave\n(follow msg 2)", "Competent", "Correct")
     ),
     prior = factor(prior, unname(prior_lab_long))
   )
 
-raw_patterns_disagg <- ggplot(summary_data, aes(x = Z, y = mean, color = prior)) +
+# Main-text raw figure: drop Correct (kept in appendix grids).
+raw_main <- summary_data |>
+  filter(as.character(Y) != "Correct") |>
+  mutate(Y = droplevels(Y))
+
+raw_patterns_disagg <-
+  ggplot(raw_main, aes(x = Z, y = mean, color = prior)) +
   facet_grid(cond ~ Y, labeller = label_value) +
   geom_point() +
   geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.15) +
@@ -604,11 +708,11 @@ raw_patterns_disagg <- ggplot(summary_data, aes(x = Z, y = mean, color = prior))
     x = "First message / second message",
     y = "",
     color = "Prior on mixing",
-    caption = "Belief = conviction of the second message; Behave = willingness to follow the second message. 95% intervals."
+    caption = "Belief = conviction of the second message; Behave = willingness to follow the second message. Outcomes on [0,1]. 95% intervals."
   )
 
 raw_patterns_disagg
-ggsave(file.path(fig_dir, "fig_2_raw_disagg.pdf"), raw_patterns_disagg, width = 10, height = 9)
+ggsave(file.path(fig_dir, "fig_2_raw_disagg.pdf"), raw_patterns_disagg, width = 12, height = 9)
 ```
 
 ## Table 2. Fully saturated model {#tbl-saturated}
@@ -622,13 +726,71 @@ PAP estimator. Four treatments, Lin-demeaned, **no hidden coefficients** (interc
 saturated <- fit_saturated_list(thirdwave)
 mean_ord <- mean(as.numeric(thirdwave$safe_time1), na.rm = TRUE)
 mean_science <- mean(as.numeric(thirdwave$science), na.rm = TRUE)
+mean_trusted <- mean(as.numeric(thirdwave$trusted), na.rm = TRUE)
 
 tab_sat <- write_texreg(
-  saturated,
+  saturated[seq_len(4)],
   file = file.path(fig_dir, "tab_2_saturated.tex"),
-  caption = "Fully saturated model. Treatments demeaned (Lin 2013); reported main effects are averages. Belief = conviction of the second message; Behave = willingness to follow the second message.",
-  label = "table:saturated"
+  caption = "Fully saturated model. Treatments demeaned (Lin 2013); reported main effects are averages. Outcomes on $[0,1]$. Belief = conviction of the second message; Behave = willingness to follow the second message. Correct is reported in the appendix.",
+  label = "table:saturated",
+  names = mod_names_main
 )
+
+# Add H-label superscripts to hypothesis cells in the saturated table.
+# Rows: Reversals (H1), Reversals×Science (H2), Reversals×Trusted (H3).
+# Belief (col 2) gets a suffix; Credible (col 3) gets b suffix.
+sat_tex <- readLines(file.path(fig_dir, "tab_2_saturated.tex"))
+
+# For each target row, find the coefficient line (not SE line) and tag cols 2 & 3.
+tag_hyp <- function(lines, row_pat, ha, hb) {
+  for (i in seq_along(lines)) {
+    if (!grepl(row_pat, lines[i], fixed = TRUE)) next
+    # Skip SE lines (start with spaces then &)
+    if (grepl("^\\s*&\\s*\\$\\(", lines[i])) next
+    parts <- strsplit(lines[i], "&", fixed = TRUE)[[1]]
+    if (length(parts) < 3) next
+    # Append tiny superscript after the closing $ in Belief and Credible columns
+    parts[2] <- sub("\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", ha, "} "), parts[2])
+    parts[3] <- sub("\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", hb, "} "), parts[3])
+    lines[i] <- paste(parts, collapse = "&")
+    break
+  }
+  lines
+}
+
+sat_tex <- tag_hyp(sat_tex, "Reversals ($Z_r$)", "H1a", "H1b")
+sat_tex <- tag_hyp(sat_tex, "Reversals $\\times$ Science", "H2a", "H2b")
+sat_tex <- tag_hyp(sat_tex, "Reversals $\\times$ Trusted", "H3a", "H3b")
+
+# Vertical rules only at ||: Belief, Credible || Behave, Competent
+sat_tex <- sub(
+  "\\\\begin\\{tabular\\}\\{[^}]+\\}",
+  "\\\\begin{tabular}{l c c || c c}",
+  sat_tex
+)
+
+# Horizontal rules after SE rows, separating coefficient blocks:
+# 1. Hypothesis two-ways (Reversals, Rev×Science, Rev×Trusted)
+# 2. Three main effects (First safe, Trusted, Science)
+# 3. Remaining two-ways (Trusted×Science, Rev×First, Trusted×First, Science×First)
+# 4. Three-ways and four-way
+# Insert from the bottom so earlier insertions do not shift later targets.
+insert_rule_after_se <- function(lines, coef_pat, exclude_pat = NULL) {
+  idx <- grep(coef_pat, lines)
+  if (!is.null(exclude_pat)) {
+    idx <- idx[!grepl(exclude_pat, lines[idx])]
+  }
+  if (length(idx) < 1) return(lines)
+  append(lines, "\\addlinespace[3pt]\\hline", after = idx[1] + 1)
+}
+
+sat_tex <- insert_rule_after_se(sat_tex, "Science .* First safe")
+sat_tex <- insert_rule_after_se(sat_tex, "Science video")
+sat_tex <- insert_rule_after_se(
+  sat_tex, "Reversals .* Trusted\\b", "Science|First safe"
+)
+
+writeLines(sat_tex, file.path(fig_dir, "tab_2_saturated.tex"))
 ```
 
 ```{r}
@@ -636,58 +798,285 @@ tab_sat <- write_texreg(
 #| results: asis
 
 texreg::htmlreg(
-  saturated,
+  saturated[seq_len(4)],
   include.ci = FALSE,
-  custom.model.names = mod_names,
-  caption = "Table 2. Fully saturated four-way model. Treatments demeaned (Lin 2013). Belief / Behave are recoded agreement with the second recommendation.",
+  custom.model.names = mod_names_main,
+  caption = "Table 2. Fully saturated four-way model. Treatments demeaned (Lin 2013). Outcomes on [0,1]. Belief / Behave are recoded agreement with the second recommendation. Correct is in the appendix.",
   stars = c(0.01, 0.05, 0.1),
+  digits = 3,
   custom.coef.map = full.coef.map,
   doctype = FALSE
 )
 ```
 
-## Figure. Conditional effects by first-message order {#fig-order}
+## Sequencing algebra and structural parameters $\beta_1$, $\beta_2$, and $\beta_r$ {#fig-mixed}
 
-Pulled from the **same** pooled four-way fits as Table 3. Colors are first message safe versus first message unsafe (the ordering treatment), not first versus second message. Other treatments at their means (0 after demeaning). CIs from Table 3 vcov.
+Paper order: seeming sequence split already in Table 2 (`inconsistent` vs `inconsistent × first-safe`); then the $\beta_1,\beta_2,\beta_r$ write-up and two $2\times 2$ arrays (`fig:two_by_twos`, TeX only); then this figure. The order-conditional coefficient grid (`fig_3_order_effects.pdf`) and mixed-message table (`tab_3_mixed_messages.tex`) are appendix, with the G order subsample tables.
+
+One float, two stacked `plot_cond_grid` panels (`patchwork`, heights 3:2). **Top:** $\beta_r$, $\beta_r\times Z_s$, $\beta_r\times Z_t$, shared $x$ (`scales = "fixed"`). **Bottom:** $\beta_1$ and $\beta_2$ on **all four** main-text outcomes, including Belief and Behave; `scales = "free_x"`. **ALL** from `saturated` (Table 2). Prior colors from the **same** pooled four-treatment $\times$ prior-group model as the appendix prior grid (`saturated_prior`), not from subsample fits. Mapping (Lin-demeaned 0/1 treatments): $\beta_r=$ `inconsistent` $=Z_r$ (the coefficient directly; $\beta_r<0$ for a penalty); $\beta_r\times Z_s=$ `inconsistent:science`; $\beta_r\times Z_t=$ `inconsistent:trusted`; $\beta_1=$ `safe_time1` $=Z_1$; $\beta_2=$ $-\tfrac12\times$`inconsistent:safe_time1` $=-\tfrac12\times(Z_r\times Z_1)$. Dodge/legend: ALL, Low, Middling, High (not alphabetical); ALL at the top of each cluster. Shared legend at the bottom. H1a--H3b on the top-panel ALL points at Belief/Credible. The `saturated_prior` *fit* stays here because this figure needs it; only the prior-coefficient *plot* is with the appendix exhibits. Main-text column order is Belief, Credible, Behave, Competent on **both** panels; outcome strip labels on both. Correct is appendix-only.
 
 ```{r}
-#| label: paper-figure-order
-#| fig-cap: "Lin conditional effects by first-message order, from the pooled four-way saturated model (Table 3)."
+#| label: paper-figure-mixed
+#| fig-cap: "Structural parameters. Top: reversal penalty $\\beta_r$ and science and trusted-sender shifts (shared $x$). Bottom: $\\beta_1$ and $\\beta_2$ on all four outcomes (free $x$)."
 
-order_dat <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
-  map_dfr(c(0, 1), function(o) {
-    d_o <- o - mean_ord
-    map_dfr(seq_len(nrow(effect_defs)), function(i) {
-      sp <- effect_defs[i, ]
-      lincom_fit(fit, pairs_at_order(sp$base, d_o)) |>
+# Fit the prior-interacted model once here (appendix prior-grid plot reuses it).
+if (!exists("saturated_prior")) {
+  dat_prior <- thirdwave |>
+    filter(!is.na(prior_g))
+  prior_rhs <- "inconsistent * trusted * science * safe_time1 * prior_g"
+  saturated_prior <- lapply(outcomes, function(y) {
+    d <- with_demeaned_treatments(dat_prior, treatment_vars)
+    lm_robust(as.formula(paste(y, "~", prior_rhs)), data = d)
+  })
+  prior_levels <- levels(dat_prior$prior_g)
+  prior_mains <- grep("^prior_g", names(coef(saturated_prior[[1]])), value = TRUE)
+  prior_mains <- prior_mains[!grepl(":", prior_mains)]
+  prior_dummies <- setNames(rep(NA_character_, length(prior_levels)), prior_levels)
+  for (nm in prior_mains) {
+    lev <- sub("^prior_g", "", nm)
+    if (lev %in% names(prior_dummies)) prior_dummies[[lev]] <- nm
+  }
+}
+
+# R term names from inconsistent * trusted * science * safe_time1.
+# One y-stack, this order (top to bottom after scale_y_discrete(limits = rev)).
+effect_defs_abc <- tibble::tribble(
+  ~effect, ~base, ~scale,
+  "$\\beta_r$", "inconsistent", 1,
+  "$\\beta_r \\times Z_s$", "inconsistent:science", 1,
+  "$\\beta_r \\times Z_t$", "inconsistent:trusted", 1,
+  "$\\beta_1$", "safe_time1", 1,
+  "$\\beta_2$", "inconsistent:safe_time1", -0.5
+) |>
+  mutate(effect = factor(effect, unique(effect)))
+
+scale_pairs <- function(pairs, scale) {
+  setNames(as.numeric(pairs) * scale, names(pairs))
+}
+
+# Legend / factor order (not alphabetical): ALL, Low, Middling, High.
+# Discrete-y dodge puts the first level at the *bottom* of a cluster;
+# plot_cond_grid(..., dodge_reverse = TRUE) puts ALL at the top.
+abc_series <- c("ALL", "Low", "Middling", "High")
+prior_lab_abc <- c(low = "Low", mid = "Middling", high = "High")
+
+abc_overall <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
+  map_dfr(seq_len(nrow(effect_defs_abc)), function(i) {
+    sp <- effect_defs_abc[i, ]
+    lincom_fit(fit, scale_pairs(pairs_at_group(sp$base, NA_character_), sp$scale)) |>
+      mutate(
+        outcome = lab,
+        effect = sp$effect,
+        series = "ALL"
+      )
+  })
+})
+
+abc_prior <- map2_dfr(saturated_prior, outcome_labels, function(fit, lab) {
+  map_dfr(names(prior_dummies), function(g) {
+    dum <- prior_dummies[[g]]
+    map_dfr(seq_len(nrow(effect_defs_abc)), function(i) {
+      sp <- effect_defs_abc[i, ]
+      lincom_fit(fit, scale_pairs(pairs_at_group(sp$base, dum), sp$scale)) |>
         mutate(
           outcome = lab,
-          row_type = sp$row_type,
           effect = sp$effect,
-          order = if_else(o == 1, "First message safe", "First message unsafe")
+          series = unname(prior_lab_abc[[g]])
         )
     })
   })
-}) |>
+})
+
+abc_dat <- bind_rows(abc_overall, abc_prior) |>
   mutate(
     outcome = factor(outcome, outcome_labels),
-    order = factor(order, c("First message unsafe", "First message safe"))
+    series = factor(series, abc_series),
+    effect = factor(effect, levels = levels(effect_defs_abc$effect))
   )
 
-fig_order <- plot_cond_grid(
-  order_dat,
-  color_var = "order",
-  color_lab = "Ordering treatment",
-  caption = "From Table 3: Y ~ inconsistent × trusted × science × safe_time1, treatments demeaned. Conditional effects evaluate demeaned safe_time1 at raw 0 vs 1; other arms at their means. 95% CIs, delta method."
+abc_main <- keep_main_outcomes(abc_dat)
+
+effects_top <- c("$\\beta_r$", "$\\beta_r \\times Z_s$", "$\\beta_r \\times Z_t$")
+effects_bot <- c("$\\beta_1$", "$\\beta_2$")
+# Main-text columns, left to right. Re-applied immediately before ggplot;
+# character outcome (e.g. after a join) makes facet_grid alphabetize.
+abc_col_order <- c("Belief", "Credible", "Behave", "Competent")
+abc_top <- abc_main |>
+  filter(as.character(effect) %in% effects_top) |>
+  mutate(effect = factor(effect, effects_top))
+abc_bot <- abc_main |>
+  filter(as.character(effect) %in% effects_bot) |>
+  mutate(effect = factor(effect, effects_bot))
+
+abc_colors <- c(
+  "ALL" = "grey20",
+  "Low" = "#66c2a5",
+  "Middling" = "#fc8d62",
+  "High" = "#8da0cb"
+)
+abc_shapes <- c(
+  "ALL" = 15,
+  "Low" = 16,
+  "Middling" = 17,
+  "High" = 18
 )
 
-fig_order
-ggsave(file.path(fig_dir, "fig_3_order_effects.pdf"), fig_order, width = 12, height = 9.2)
+#
+# Hypothesis labels on the ALL-series points at Belief/Credible × {β_r, β_r×Z_s, β_r×Z_t}.
+#
+abc_hyp_labels <- tibble::tribble(
+  ~effect, ~outcome, ~label,
+  "$\\beta_r$",            "Belief",   "H1a",
+  "$\\beta_r$",            "Credible", "H1b",
+  "$\\beta_r \\times Z_s$", "Belief",   "H2a",
+  "$\\beta_r \\times Z_s$", "Credible", "H2b",
+  "$\\beta_r \\times Z_t$", "Belief",   "H3a",
+  "$\\beta_r \\times Z_t$", "Credible", "H3b"
+)
+
+abc_hyp_label_dat <- abc_top |>
+  filter(series == "ALL") |>
+  inner_join(abc_hyp_labels, by = c("effect", "outcome"))
+
+# Immediately before ggplot: same factor on both panels and the H-label layer
+# (inner_join with a character tribble otherwise drops the outcome factor).
+abc_top <- abc_top |>
+  mutate(outcome = factor(as.character(outcome), abc_col_order))
+abc_bot <- abc_bot |>
+  mutate(outcome = factor(as.character(outcome), abc_col_order))
+abc_hyp_label_dat <- abc_hyp_label_dat |>
+  mutate(outcome = factor(as.character(outcome), abc_col_order))
+
+pos_abc <- position_dodge(width = 0.65, reverse = TRUE)
+
+abc_scales_extra <- function(p, d) {
+  p +
+    scale_color_manual(values = abc_colors, breaks = abc_series) +
+    scale_shape_manual(values = abc_shapes, breaks = abc_series) +
+    scale_y_discrete(limits = rev, labels = latex2exp::TeX)
+}
+
+fig_abc_top <- plot_cond_grid(
+  abc_top,
+  color_var = "series",
+  color_lab = "ALL / prior group",
+  caption = NULL,
+  dodge = 0.65,
+  row_facets = FALSE,
+  dodge_reverse = TRUE,
+  scales = "fixed",
+  extra = function(p, d) {
+    abc_scales_extra(p, d) +
+      geom_text(
+        data = abc_hyp_label_dat,
+        inherit.aes = FALSE,
+        aes(x = 0.003, y = effect, label = label),
+        position = pos_abc,
+        size = 2.5,
+        vjust = -0.8,
+        fontface = "bold",
+        show.legend = FALSE
+      )
+  }
+)
+
+fig_abc_bot <- plot_cond_grid(
+  abc_bot,
+  color_var = "series",
+  color_lab = "ALL / prior group",
+  caption = NULL,
+  dodge = 0.65,
+  row_facets = FALSE,
+  dodge_reverse = TRUE,
+  scales = "free_x",
+  extra = abc_scales_extra
+)
+
+fig_abc <- fig_abc_top / fig_abc_bot +
+  plot_layout(heights = c(3, 2), guides = "collect") &
+  theme(legend.position = "bottom")
+
+fig_abc
+ggsave(file.path(fig_dir, "fig_7_abc_parameters.pdf"), fig_abc, width = 11, height = 9)
+```
+
+```{r}
+#| label: paper-mixed-term-check
+#| results: asis
+
+cat("Saturated (overall) terms:\n")
+cat(paste(setdiff(names(coef(saturated[[1]])), "(Intercept)"), collapse = "\n"))
+cat("\n\nPrior-interacted bases used for beta_1, beta_2, beta_r:\n")
+cat(paste(unique(effect_defs_abc$base), collapse = "\n"))
+cat("\n\nN (overall saturated, Belief): ", nobs(saturated[[1]]), "\n", sep = "")
+cat("N (prior-interacted, Belief): ", nobs(saturated_prior[[1]]), "\n", sep = "")
+abc_cred <- abc_dat |>
+  filter(outcome == "Credible", series == "ALL") |>
+  select(effect, estimate, se, conf.low, conf.high)
+print(abc_cred, digits = 3)
+n_ab_bb <- abc_dat |>
+  filter(effect %in% c("$\\beta_1$", "$\\beta_2$"), outcome %in% c("Belief", "Behave")) |>
+  nrow()
+cat("beta_1/beta_2 rows on Belief/Behave (expect 16): ", n_ab_bb, "\n", sep = "")
+gb_abc <- ggplot_build(fig_abc_top)
+xlims <- vapply(
+  seq_along(gb_abc$layout$panel_params),
+  function(i) {
+    pp <- gb_abc$layout$panel_params[[i]]
+    rng <- pp$x.range
+    if (is.null(rng) && !is.null(pp$x)) {
+      rng <- if (!is.null(pp$x$limits)) pp$x$limits else pp$x$range
+    }
+    paste(round(as.numeric(rng), 4), collapse = " to ")
+  },
+  character(1)
+)
+cat("top-panel x-ranges (should be identical):\n")
+print(unique(xlims))
+gb_bot <- ggplot_build(fig_abc_bot)
+xlims_bot <- vapply(
+  seq_along(gb_bot$layout$panel_params),
+  function(i) {
+    pp <- gb_bot$layout$panel_params[[i]]
+    rng <- pp$x.range
+    if (is.null(rng) && !is.null(pp$x)) {
+      rng <- if (!is.null(pp$x$limits)) pp$x$limits else pp$x$range
+    }
+    paste(round(as.numeric(rng), 4), collapse = " to ")
+  },
+  character(1)
+)
+cat("bottom-panel x-ranges (free_x; Belief/Behave should be wider):\n")
+print(xlims_bot)
+layout_cols <- function(p) {
+  ly <- ggplot_build(p)$layout$layout
+  as.character(ly$outcome[order(ly$COL)])
+}
+cat(
+  "top-panel columns: ", paste(layout_cols(fig_abc_top), collapse = " | "), "\n",
+  "bottom-panel columns: ", paste(layout_cols(fig_abc_bot), collapse = " | "), "\n",
+  sep = ""
+)
+bot_strip <- fig_abc_bot$theme$strip.text.x
+top_strip <- fig_abc_top$theme$strip.text.x
+cat(
+  "top strip.text.x blank: ", inherits(top_strip, "element_blank"), "\n",
+  "bottom strip.text.x blank: ", inherits(bot_strip, "element_blank"), "\n",
+  sep = ""
+)
+cat("\nabc factor / legend order: ", paste(abc_series, collapse = " | "), "\n", sep = "")
+eb <- gb_abc$data[[2]]
+one <- eb[as.integer(eb$PANEL) == 1, ]
+one <- one[one$y > max(one$y) - 0.7, ]
+one <- one[order(-one$y), ]
+src <- dplyr::filter(abc_top, outcome == "Belief", effect == "$\\beta_r$")
+dodge_lab <- as.character(src$series[match(round(one$x, 8), round(src$estimate, 8))])
+cat("abc visual top-to-bottom (Belief, beta_r): ", paste(dodge_lab, collapse = " | "), "\n", sep = "")
 ```
 
 ## Figure. ITT and LATE {#fig-itt}
 
-Same five outcomes as Table 3. Assignment instruments perceived inconsistency.
+Four outcomes as Table 2 (Correct in the appendix). Assignment instruments perceived inconsistency.
 
 ```{r}
 #| label: paper-figure-itt
@@ -722,7 +1111,7 @@ subfigure_1_iv <- lapply(models_iv, tidy) |>
 
 data_figure5 <- bind_rows(subfigure_1_itt, subfigure_1_iv)
 
-figure_itt <- data_figure5 |>
+figure_itt <- keep_main_outcomes(data_figure5) |>
   ggplot(aes(estimate, outcome, color = Model, shape = Model)) +
   geom_point(position = position_dodge(width = 0.3), size = 3) +
   geom_errorbar(
@@ -734,7 +1123,7 @@ figure_itt <- data_figure5 |>
   xlab("Effect of inconsistent information") +
   ylab("Outcome") +
   labs(
-    caption = "Belief = conviction of the second message; Behave = willingness to follow the second message. 95% intervals."
+    caption = "Belief = conviction of the second message; Behave = willingness to follow the second message. Outcomes on [0,1]. 95% intervals."
   ) +
   theme_bw() +
   theme(legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 16)) +
@@ -749,130 +1138,100 @@ ggsave(file.path(fig_dir, "fig_4_itt_late.pdf"), figure_itt, width = 8, height =
 #| results: asis
 
 show_htmlreg(
-  models_basic,
-  caption = "ITT companion. Inconsistency assignment. Same outcomes as Table 3.",
-  coef_map = list("inconsistent" = "Inconsistent")
+  models_basic[seq_len(4)],
+  caption = "ITT companion. Reversal assignment. Same four outcomes as Table 2.",
+  names = mod_names_main,
+  coef_map = list("inconsistent" = "Reversals")
 )
 show_htmlreg(
-  models_iv,
-  caption = "LATE/IV companion. Perceived inconsistency instrumented by assignment. Same outcomes as Table 3.",
+  models_iv[seq_len(4)],
+  caption = "LATE/IV companion. Perceived inconsistency instrumented by assignment. Same four outcomes as Table 2.",
+  names = mod_names_main,
   coef_map = iv_coef_map
 )
 ```
 
-## Figure. Inconsistency conditional on science video {#fig-science}
+## Figure. Reversal conditional on science and trusted sender {#fig-science}
 
-From the **same** Table 3 fits. Inconsistency at science 0 versus 1; other treatments at their means. All five outcomes. This is an interaction display, not a failed main effect of the video.
+From the **same** Table 2 fits (pooled Lin-saturated `inconsistent * trusted * science * safe_time1`). Row 1: effect of $Z_r$ at $Z_s=0$ and $Z_s=1$. Row 2: effect of $Z_r$ at $Z_t=0$ and $Z_t=1$. Other treatments at their means (demeaned evaluation of the 0/1 arm at raw 0 vs 1). Four main-text outcomes (Correct in appendix). No subsample models.
 
 ```{r}
 #| label: paper-figure-science
-#| fig-cap: "Effect of inconsistency conditional on the science-video arm, from the Table 3 saturated model."
+#| fig-cap: "Effect of reversal conditional on the science-video arm (top) and the trusted-sender arm (bottom), from the Table 2 saturated model."
 
 science_me <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
-  map_dfr(c(0, 1), function(s) {
+  sci <- map_dfr(c(0, 1), function(s) {
     s_d <- s - mean_science
     lincom_fit(fit, c(inconsistent = 1, `inconsistent:science` = s_d)) |>
       mutate(
         outcome = lab,
-        science = if_else(s == 1, "Science video", "No science video")
+        moderator = "Science video ($Z_s$)",
+        arm = if_else(s == 1, "Science on", "Science off"),
+        z = s
       )
   })
+  tr <- map_dfr(c(0, 1), function(t) {
+    t_d <- t - mean_trusted
+    lincom_fit(fit, c(inconsistent = 1, `inconsistent:trusted` = t_d)) |>
+      mutate(
+        outcome = lab,
+        moderator = "Trusted sender ($Z_t$)",
+        arm = if_else(t == 1, "Trusted", "Untrusted"),
+        z = t
+      )
+  })
+  bind_rows(sci, tr)
 }) |>
   mutate(
     outcome = factor(outcome, outcome_labels),
-    science = factor(science, c("No science video", "Science video"))
+    moderator = factor(
+      moderator,
+      c("Science video ($Z_s$)", "Trusted sender ($Z_t$)")
+    ),
+    arm = factor(
+      arm,
+      c("Science off", "Science on", "Untrusted", "Trusted")
+    ),
+    on = factor(z, levels = c(0, 1), labels = c("Off", "On"))
   )
 
-fig_science <- science_me |>
-  ggplot(aes(outcome, estimate, color = science, shape = science)) +
-  geom_hline(yintercept = 0, linetype = "longdash") +
-  geom_point(position = position_dodge(width = 0.4), size = 3) +
+fig_science <- keep_main_outcomes(science_me) |>
+  ggplot(aes(estimate, arm, color = on, shape = on)) +
+  geom_vline(xintercept = 0, linetype = "longdash") +
+  geom_point(size = 2.8) +
   geom_errorbar(
-    aes(ymin = conf.low, ymax = conf.high),
-    position = position_dodge(width = 0.4),
-    width = 0.15
+    aes(xmin = conf.low, xmax = conf.high),
+    orientation = "y",
+    width = 0.18
   ) +
-  xlab("Outcome") +
-  ylab("Effect of inconsistency") +
+  facet_grid(
+    moderator ~ outcome,
+    scales = "free_y",
+    labeller = labeller(
+      moderator = latex2exp::TeX,
+      outcome = identity
+    )
+  ) +
+  xlab("Effect of reversal") +
+  ylab("") +
   labs(
-    color = "Science-video arm",
-    shape = "Science-video arm",
-    caption = "Conditional coefficients of inconsistency at science 0 vs 1 from Table 3 (Lin-demeaned four-way). Other treatments at their means. Belief = conviction of msg 2; Behave = follow msg 2. 95% intervals."
+    color = "Moderator level",
+    shape = "Moderator level",
+    caption = "Lin-demeaned four-way (Table 2). Top: Zr at Zs = 0 vs 1. Bottom: Zr at Zt = 0 vs 1. Other arms at their means. Belief = conviction of msg 2; Behave = follow msg 2. Outcomes on [0,1]. 95% intervals."
   ) +
   theme_bw() +
-  theme(legend.position = "bottom")
-
-fig_science
-ggsave(file.path(fig_dir, "fig_5_science_conditional.pdf"), fig_science, width = 8, height = 5)
-```
-
-## Figure. Conditional effects by prior group {#fig-prior-cond}
-
-Same skeleton as the order plot. Colors are low / mid / high priors (cuts 3.3 / 6.6). **One pooled model** per outcome: four treatments interacted with prior group. Effects at the mean of the other treatments (including order). Not three subsample fits.
-
-```{r}
-#| label: paper-figure-prior-cond
-#| fig-cap: "Lin conditional effects by prior group, from a pooled four-treatment × prior-group model."
-
-dat_prior <- thirdwave |>
-  filter(!is.na(prior_g))
-
-# Reference = low. Dummy names from R factor coding after demeaning treatments only.
-prior_rhs <- "inconsistent * trusted * science * safe_time1 * prior_g"
-
-saturated_prior <- lapply(outcomes, function(y) {
-  d <- with_demeaned_treatments(dat_prior, treatment_vars)
-  lm_robust(as.formula(paste(y, "~", prior_rhs)), data = d)
-})
-
-# Dummy names from the fitted factor (reference = first level of prior_g).
-prior_levels <- levels(dat_prior$prior_g)
-prior_mains <- grep("^prior_g", names(coef(saturated_prior[[1]])), value = TRUE)
-prior_mains <- prior_mains[!grepl(":", prior_mains)]
-prior_dummies <- setNames(rep(NA_character_, length(prior_levels)), prior_levels)
-for (nm in prior_mains) {
-  lev <- sub("^prior_g", "", nm)
-  if (lev %in% names(prior_dummies)) prior_dummies[[lev]] <- nm
-}
-
-prior_dat <- map2_dfr(saturated_prior, outcome_labels, function(fit, lab) {
-  map_dfr(names(prior_dummies), function(g) {
-    dum <- prior_dummies[[g]]
-    map_dfr(seq_len(nrow(effect_defs)), function(i) {
-      sp <- effect_defs[i, ]
-      lincom_fit(fit, pairs_at_group(sp$base, dum)) |>
-        mutate(
-          outcome = lab,
-          row_type = sp$row_type,
-          effect = sp$effect,
-          prior = prior_lab_long[[g]]
-        )
-    })
-  })
-}) |>
-  mutate(
-    outcome = factor(outcome, outcome_labels),
-    prior = factor(prior, unname(prior_lab_long))
+  theme(
+    legend.position = "bottom",
+    strip.text.y = element_text(size = 11)
   )
 
-fig_prior <- plot_cond_grid(
-  prior_dat,
-  color_var = "prior",
-  color_lab = "Prior group",
-  caption = "Pooled: Y ~ inconsistent × trusted × science × safe_time1 × prior group, treatments demeaned. Conditional effects at each prior group; other arms at their means. 95% CIs, delta method. Cuts at 3.3 and 6.6."
+fig_science
+ggsave(
+  file.path(fig_dir, "fig_5_science_trust_conditional.pdf"),
+  fig_science,
+  width = 10,
+  height = 6.5
 )
-
-fig_prior
-ggsave(file.path(fig_dir, "fig_6_prior_effects.pdf"), fig_prior, width = 12, height = 9.2)
-```
-
-```{r}
-#| label: paper-prior-term-check
-#| results: asis
-
-# Confirm dummy names exist in the first prior-interacted fit (coefficients only).
-cat("Prior-interacted terms containing 'prior_g':\n")
-cat(paste(grep("prior_g", names(coef(saturated_prior[[1]])), value = TRUE), collapse = "\n"))
 ```
 
 # 5. SI / appendix exhibits
@@ -1416,9 +1775,82 @@ show_htmlreg(
 )
 ```
 
+## Appendix. Order-conditional coefficient grid {#fig-order}
+
+The order-conditional coefficient grid is from the **same** pooled four-way fits as Table 2. Colors are first message safe versus first message unsafe. Other treatments at their means (0 after demeaning). These are $\beta_2+\beta_r$ and $-\beta_2+\beta_r$, not two penalties. Subsample fits below are **not** the source of this figure.
+
+```{r}
+#| label: paper-figure-order
+#| fig-cap: "Lin conditional effects by first-message order, from the pooled four-way saturated model (Table 2). Appendix."
+
+order_dat <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
+  map_dfr(c(0, 1), function(o) {
+    d_o <- o - mean_ord
+    map_dfr(seq_len(nrow(effect_defs)), function(i) {
+      sp <- effect_defs[i, ]
+      lincom_fit(fit, pairs_at_order(sp$base, d_o)) |>
+        mutate(
+          outcome = lab,
+          row_type = sp$row_type,
+          effect = sp$effect,
+          order = if_else(o == 1, "First message safe", "First message unsafe")
+        )
+    })
+  })
+}) |>
+  mutate(
+    outcome = factor(outcome, outcome_labels),
+    order = factor(order, c("First message unsafe", "First message safe"))
+  )
+
+fig_order <- plot_cond_grid(
+  order_dat,
+  color_var = "order",
+  color_lab = "Ordering treatment",
+  caption = "From Table 2: Y ~ inconsistent x trusted x science x safe_time1, treatments demeaned. Conditional effects evaluate demeaned safe_time1 at raw 0 vs 1; other arms at their means. 95% CIs, delta method. Appendix: beta_2+beta_r and -beta_2+beta_r, not two penalties."
+)
+
+fig_order
+ggsave(file.path(fig_dir, "fig_3_order_effects.pdf"), fig_order, width = 13, height = 9.2)
+```
+
+## Appendix. Mixed-message saturation {#tbl-mixed}
+
+Lin-demeaned `mixed_1 * mixed_2 * science * trusted`. Same four message cells as Table 2 under a 1--1 recoding (`mixed_1` = `safe_time1` $=Z_1$, `mixed_2` = `safe_time2` $=Z_2$). Treatments stay 0/1 in the frame and are demeaned at fit. No hidden rows. The `mixed_1:mixed_2` coefficient is $-2\beta_r$. Appendix exhibit; same model as Table 2 with a different parameterization ($Z_1\times Z_2$ in place of $Z_r\times Z_1$).
+
+```{r}
+#| label: paper-table-mixed
+#| results: hide
+
+saturated_mixed <- fit_saturated_list(
+  thirdwave,
+  rhs = mixed_rhs,
+  vars = mixed_vars
+)
+
+tab_mixed <- write_texreg(
+  saturated_mixed,
+  file = file.path(fig_dir, "tab_3_mixed_messages.tex"),
+  caption = "Fully saturated model in the $Z_1$, $Z_2$ parameterization. Treatments demeaned (Lin 2013); reported main effects are averages. Outcomes on $[0,1]$. Belief = conviction of the second message; Behave = willingness to follow the second message.",
+  label = "table:mixed",
+  coef_map = mixed.coef.map
+)
+```
+
+```{r}
+#| label: paper-table-mixed-html
+#| results: asis
+
+show_htmlreg(
+  saturated_mixed,
+  caption = "Appendix. Fully saturated four-way model, $Z_1 \\times Z_2 \\times Z_s \\times Z_t$. Same model as Table 2 with a different parameterization. Treatments demeaned (Lin 2013); main effects are averages. Belief / Behave are recoded agreement with the second recommendation.",
+  coef_map = mixed.coef.map
+)
+```
+
 ## Extra saturated tables (appendix; not used for the order graphs) {#tbl-prior-sub}
 
-Subsample fits are **not** the source of the main-text order figure. High priors use `prior_mixed > 6.6`.
+High priors use `prior_mixed > 6.6`.
 
 ```{r}
 #| label: si-extra-saturated
@@ -1524,9 +1956,92 @@ show_htmlreg(
 )
 ```
 
+## Appendix. Conditional effects by prior group {#fig-prior-cond}
+
+Same skeleton as the order plot. Colors are low / mid / high priors (cuts 3.3 / 6.6), dodged low–middling–high (not alphabetical), low at the top of each cluster. **One pooled model** per outcome: four treatments interacted with prior group. Effects at the mean of the other treatments (including order). Not three subsample fits. Appendix exhibit; main-text prior claims come from the $\beta_1$, $\beta_2$, $\beta_r$ figure. The `saturated_prior` *fit* is in the main-text abc chunk.
+
+```{r}
+#| label: paper-figure-prior-cond
+#| fig-cap: "Lin conditional effects by prior group, from a pooled four-treatment × prior-group model. Appendix."
+
+# Reuse the pooled four-treatment × prior fit from the beta_1/beta_2/beta_r figure when present.
+if (!exists("saturated_prior")) {
+  dat_prior <- thirdwave |>
+    filter(!is.na(prior_g))
+  # Reference = low. Dummy names from R factor coding after demeaning treatments only.
+  prior_rhs <- "inconsistent * trusted * science * safe_time1 * prior_g"
+  saturated_prior <- lapply(outcomes, function(y) {
+    d <- with_demeaned_treatments(dat_prior, treatment_vars)
+    lm_robust(as.formula(paste(y, "~", prior_rhs)), data = d)
+  })
+  prior_levels <- levels(dat_prior$prior_g)
+  prior_mains <- grep("^prior_g", names(coef(saturated_prior[[1]])), value = TRUE)
+  prior_mains <- prior_mains[!grepl(":", prior_mains)]
+  prior_dummies <- setNames(rep(NA_character_, length(prior_levels)), prior_levels)
+  for (nm in prior_mains) {
+    lev <- sub("^prior_g", "", nm)
+    if (lev %in% names(prior_dummies)) prior_dummies[[lev]] <- nm
+  }
+}
+
+prior_dat <- map2_dfr(saturated_prior, outcome_labels, function(fit, lab) {
+  map_dfr(names(prior_dummies), function(g) {
+    dum <- prior_dummies[[g]]
+    map_dfr(seq_len(nrow(effect_defs)), function(i) {
+      sp <- effect_defs[i, ]
+      lincom_fit(fit, pairs_at_group(sp$base, dum)) |>
+        mutate(
+          outcome = lab,
+          row_type = sp$row_type,
+          effect = sp$effect,
+          prior = prior_lab_long[[g]]
+        )
+    })
+  })
+}) |>
+  mutate(
+    outcome = factor(outcome, outcome_labels),
+    prior = factor(prior, unname(prior_lab_long))
+  )
+
+# Factor: low, middling, high (not alphabetical). dodge_reverse puts low at the top.
+fig_prior <- plot_cond_grid(
+  prior_dat,
+  color_var = "prior",
+  color_lab = "Prior group",
+  dodge_reverse = TRUE,
+  caption = "Pooled: Y ~ inconsistent × trusted × science × safe_time1 × prior group, treatments demeaned. Conditional effects at each prior group; other arms at their means. 95% CIs, delta method. Cuts at 3.3 and 6.6. Appendix.",
+  extra = function(p, d) {
+    p +
+      scale_color_discrete(breaks = unname(prior_lab_long)) +
+      scale_shape_discrete(breaks = unname(prior_lab_long))
+  }
+)
+
+fig_prior
+ggsave(file.path(fig_dir, "fig_6_prior_effects.pdf"), fig_prior, width = 13, height = 9.2)
+```
+
+```{r}
+#| label: paper-prior-term-check
+#| results: asis
+
+# Confirm dummy names exist in the first prior-interacted fit (coefficients only).
+cat("Prior-interacted terms containing 'prior_g':\n")
+cat(paste(grep("prior_g", names(coef(saturated_prior[[1]])), value = TRUE), collapse = "\n"))
+cat("\n\nprior factor / legend order: ", paste(unname(prior_lab_long), collapse = " | "), "\n", sep = "")
+eb_p <- ggplot_build(fig_prior)$data[[2]]
+one_p <- eb_p[as.integer(eb_p$PANEL) == 1, ]
+one_p <- one_p[one_p$y > max(one_p$y) - 0.7, ]
+one_p <- one_p[order(-one_p$y), ]
+src_p <- dplyr::filter(prior_dat, outcome == "Belief", effect == "Reversals")
+dodge_p <- as.character(src_p$prior[match(round(one_p$x, 8), round(src_p$estimate, 8))])
+cat("prior visual top-to-bottom (Belief, Reversals): ", paste(dodge_p, collapse = " | "), "\n", sep = "")
+```
+
 ## Party plot {#fig-party}
 
-Same skeleton as the main-text order and prior graphs. Colors = parties. **One pooled model** per outcome: four treatments interacted with party. CDU and CSU combined before the interaction. Non-identifiers (`keiner Partei` / none) and Other / rare parties dropped, not plotted. PAP exploratory. Appendix Figure G.1.
+Same skeleton as the order and prior graphs. Colors = parties. **One pooled model** per outcome: four treatments interacted with party. CDU and CSU combined before the interaction. Non-identifiers (`keiner Partei` / none) and Other / rare parties dropped, not plotted. PAP exploratory. Appendix (after the order grid).
 
 ```{r}
 #| label: si-party
@@ -1599,15 +2114,17 @@ fig_party <- plot_cond_grid(
   color_var = "party",
   color_lab = "Party",
   dodge = 0.72,
-  caption = "Pooled: Y ~ inconsistent × trusted × science × safe_time1 × party, treatments demeaned. CDU/CSU combined. keiner Partei and Other omitted. Other arms at their means. Exploratory (PAP). 95% CIs. Belief = conviction of msg 2; Behave = follow msg 2."
-) +
-  guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2))
+  caption = "Pooled: Y ~ inconsistent × trusted × science × safe_time1 × party, treatments demeaned. CDU/CSU combined. keiner Partei and Other omitted. Other arms at their means. Exploratory (PAP). 95% CIs. Belief = conviction of msg 2; Behave = follow msg 2.",
+  extra = function(p, d) {
+    p + guides(color = guide_legend(nrow = 2), shape = guide_legend(nrow = 2))
+  }
+)
 
 fig_party
 ggsave(
   file.path(fig_dir, "fig_g1_party_effects.pdf"),
   fig_party,
-  width = 12,
+  width = 13,
   height = 18,
   device = cairo_pdf
 )
@@ -1627,29 +2144,21 @@ cat(paste(grep("party_g", names(coef(saturated_party[[1]])), value = TRUE)[1:20]
 #| label: si-itt-iv-tex
 #| results: hide
 
-tab_itt <- texreg::texreg(
+tab_itt <- write_texreg(
   models_basic,
-  include.ci = FALSE,
-  custom.model.names = mod_names,
-  caption = "ITT: inconsistency assignment. Belief = conviction of msg 2; Behave = follow msg 2.",
+  file = file.path(fig_dir, "tab_g6_itt.tex"),
+  caption = "ITT: reversal assignment. Outcomes on $[0,1]$. Belief = conviction of msg 2; Behave = follow msg 2.",
   label = "table:itt",
-  stars = c(0.01, 0.05, 0.1),
-  custom.note = table_note_outcomes,
-  custom.coef.map = list("inconsistent" = "Inconsistent")
+  coef_map = list("inconsistent" = "Reversals")
 )
-write(tab_itt, file = file.path(fig_dir, "tab_g6_itt.tex"))
 
-tab_iv <- texreg::texreg(
+tab_iv <- write_texreg(
   models_iv,
-  include.ci = FALSE,
-  custom.model.names = mod_names,
-  caption = "IV: perceived inconsistency instrumented by assignment. Same outcomes as Table 3.",
+  file = file.path(fig_dir, "tab_g7_iv.tex"),
+  caption = "IV: perceived inconsistency instrumented by assignment. Four outcomes as Table 2, plus Correct.",
   label = "table:iv",
-  stars = c(0.01, 0.05, 0.1),
-  custom.note = table_note_outcomes,
-  custom.coef.map = iv_coef_map
+  coef_map = iv_coef_map
 )
-write(tab_iv, file = file.path(fig_dir, "tab_g7_iv.tex"))
 ```
 
 ```{r}
@@ -1658,12 +2167,12 @@ write(tab_iv, file = file.path(fig_dir, "tab_g7_iv.tex"))
 
 show_htmlreg(
   models_basic,
-  caption = "ITT: inconsistency assignment. Belief = conviction of msg 2; Behave = follow msg 2.",
-  coef_map = list("inconsistent" = "Inconsistent")
+  caption = "ITT: reversal assignment. Belief = conviction of msg 2; Behave = follow msg 2.",
+  coef_map = list("inconsistent" = "Reversals")
 )
 show_htmlreg(
   models_iv,
-  caption = "IV: perceived inconsistency instrumented by assignment. Same outcomes as Table 3.",
+  caption = "IV: perceived inconsistency instrumented by assignment. Four outcomes as Table 2, plus Correct.",
   coef_map = iv_coef_map
 )
 ```
@@ -1745,7 +2254,10 @@ coef_tab <- function(mods, labels = mod_names) {
 estimates <- list(
   treatment_means = treatment_means,
   tab_sat = tab_sat,
+  tab_mixed = tab_mixed,
   saturated = coef_tab(saturated),
+  saturated_mixed = coef_tab(saturated_mixed),
+  abc_dat = abc_dat,
   saturated_prior = coef_tab(saturated_prior),
   saturated_party = coef_tab(saturated_party),
   sat_0 = coef_tab(sat_0),
