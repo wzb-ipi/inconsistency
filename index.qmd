@@ -1,18 +1,14 @@
 ---
-title: "Penalties for Adjusting Public Policies are Stubborn"
-subtitle: Replication data and code
+title: "Penalties for Policy Reversals are Stubborn"
+subtitle: Replication code
 format:
   html:
     embed-resources: true
 author: Felix Hartmann, Ferdinand Geissler, Macartan Humphreys, Heike Klüver, Johannes Giesecke
 ---
 
-Files to replicate analyses and tables for "Penalties for Adjusting Public Policies are Stubborn."
+Code and output for "Penalties for Policy Reversals are Stubborn." The paper reports an information experiment with 10,456 citizens in Germany that varies reports of policy positioning and repositioning, the trustworthiness of the sender, and information about the normality of reversals in scientific processes. Inconsistent advice reduces perceived credibility and message effectiveness, and that penalty is not significantly moderated by a trusted scientific sender or by information about the scientific process.
 
-Raw survey data are **not** in this archive. See Housekeeping in `analysis.qmd` for data paths.
+[Analyses for the paper and appendix](jeps_analysis.html) (`jeps_analysis.qmd`) produces the tables and figures. Object labels are listed at the top of that file.
 
-1. [Theory figures](theory.html) (`theory.qmd`) — Figure 1 `2_figures/policy.pdf`, Figure 2 `2_figures/credibility.pdf`
-2. [Paper and SI analyses for AJPS submission](analysis.html) (`analysis.qmd`)
-3. [Paper and SI analyses for JEPS submission](jeps_analysis.html) (`jeps_analysis.qmd`)
-
-Paper and SI object labels are listed at the top of `analysis.qmd`.
+Raw survey data are **not** in this archive. See Housekeeping in `jeps_analysis.qmd` for data paths.

@@ -17,22 +17,29 @@ execute:
 
 This file produces the JEPS draft exhibits. 
 
-**Plot layout (order / prior / party).** Columns in **appendix** grids are the five outcomes, left to right: Belief, Credible, Behave, Competent, Correct, one continuous `facet_grid`. **Main-text** exhibits drop Correct and keep Belief, Credible, Behave, Competent (`outcomes_main`). Rows are coefficient type: main effects (inconsistency, trusted sender, science video); two-way interactions (inc×trusted, inc×science, trusted×science); three-way (inc×trusted×science). Within a panel, *y* is the effect name and *x* is the Lin linear combination, with horizontal CIs (`geom_errorbar`, `orientation = "y"`). Colors dodge a grouping variable: first-message order (appendix order plot), prior group (appendix prior plot), or party (appendix). Order and prior/party graphs are pulled from **one pooled interacted model**, not subsample saturated fits. The science/trust-conditional figure is a different family from the coefficient grids: two facet rows ($Z_s$, $Z_t$), four main-text outcome columns (Correct stays appendix), horizontal CIs, shared $x$-scale, no three-block spacers. The order-conditional coefficient grid (`fig_3_order_effects.pdf`) and the prior-group coefficient grid (`fig_6_prior_effects.pdf`) are appendix (five outcomes). The main-text $\beta_1$, $\beta_2$, $\beta_r$ figure is two stacked panels, four outcomes (Belief, Credible, Behave, Competent): top $\beta_r$ and its science/trust shifts with a shared $x$-scale; bottom $\beta_1$ and $\beta_2$ on all four outcomes with `free_x`.
+**Plot layout (order / prior / party).** Columns in **appendix** grids are the five outcomes, left to right: Belief, Behave, Credible, Competent, Correct, one continuous `facet_grid`. Belief-side outcomes come first, credibility-side second. **Main-text** exhibits drop Correct and keep Belief, Behave, Credible, Competent (`outcomes_main`). Rows are coefficient type: main effects (inconsistency, trusted sender, science video); two-way interactions (inc×trusted, inc×science, trusted×science); three-way (inc×trusted×science). Within a panel, *y* is the effect name and *x* is the Lin linear combination, with horizontal CIs (`geom_errorbar`, `orientation = "y"`). Colors dodge a grouping variable: first-message order (appendix order plot), prior group (appendix prior plot), or party (appendix). Order and prior/party graphs are pulled from **one pooled interacted model**, not subsample saturated fits. The science/trust-conditional figure is a different family from the coefficient grids: two facet rows ($Z_s$, $Z_t$), four main-text outcome columns (Correct stays appendix), horizontal CIs, shared $x$-scale, no three-block spacers. The order-conditional coefficient grid (`fig_3_order_effects.pdf`) and the prior-group coefficient grid (`fig_6_prior_effects.pdf`) are appendix (five outcomes). The main-text $\beta_1$, $\beta_2$, $\beta_r$ figure is two stacked panels, four outcomes (Belief, Behave, Credible, Competent): top $\beta_r$ and its science/trust shifts with a shared $x$-scale; bottom $\beta_1$ and $\beta_2$ on all four outcomes with `free_x`.
 
-**Outcomes.** **Belief** (conviction of the second message); **Credible**; **Behave** (willingness to follow the second message); Competent; Correct. Fit all five, then subset columns for main-text texreg/ggplot. All five are divided by 10 after construction so analysis, tables, and figures are on $[0,1]$.
+**Outcomes.** Belief-side first, credibility-side second: **Belief** (conviction of the second message); **Behave** (willingness to follow the second message); **Credible**; Competent; Correct. Fit all five, then subset columns for main-text texreg/ggplot. All five are divided by 10 after construction so analysis, tables, and figures are on $[0,1]$.
 
 **Treatments (paper letters).** $Z_r$ inconsistency / reversal (`inconsistent`), $Z_r=\mathbf{1}\{Z_1\neq Z_2\}$; $Z_1$ first message safe (`safe_time1`); $Z_t$ trusted sender (`trusted`); $Z_s$ science video (`science`). $Z_2$ is second message safe (`safe_time2`). Display order in the main spec is $Z_r,Z_1,Z_t,Z_s$. PAP / DeclareDesign letters were different: PAP $Z_1\to Z_t$, PAP $Z_2\to Z_s$, PAP $Z_3\to Z_1$, PAP $Z_4\to Z_r$. Table 2 is the locked estimator: demeaned `inconsistent * trusted * science * safe_time1`; only displayed labels and order change.
 
 | Object | Overleaf file | label |
 |:-------|:--------------|:------|
-| [Figure 1: public debate](#fig-prior) | `jeps_assets/fig_1_debate_priors.pdf` | `fig:Prior` |
-| [Figure 2: raw](#fig-raw) | `jeps_assets/fig_2_raw_disagg.pdf` | `fig:raw` |
+| [Figure: theory reversal projection](#fig-theory-projection) | `jeps_assets/fig_theory_projection.pdf` | `fig:theory_projection` (main text; top panel of A.5) |
+| [Figure 1: public debate](#fig-prior) | `jeps_assets/fig_2_debate_priors.pdf` | `fig:Prior` |
+| [Figure 2: raw](#fig-raw) | `jeps_assets/fig_3_raw_disagg.pdf` | `fig:raw` |
 | [Table 2: saturated](#tbl-saturated) | `jeps_assets/tab_2_saturated.tex` | `table:saturated` |
-| [Figure: $\beta_1$, $\beta_2$, $\beta_r$](#fig-mixed) | `jeps_assets/fig_7_abc_parameters.pdf` | `fig:mixed_int` (main text) |
-| [Figure: ITT/LATE](#fig-itt) | `jeps_assets/fig_4_itt_late.pdf` | `fig:ITT` (filename kept; LaTeX number shifts) |
-| [Figure: science/trust-conditional](#fig-science) | `jeps_assets/fig_5_science_trust_conditional.pdf` | `fig:ScienceInformation` |
-| [Figure A.1: theory policy](#fig-policy) | `jeps_assets/fig_a1_policy.pdf` | `fig:policy` |
-| [Figure A.2: theory credibility](#fig-credibility) | `jeps_assets/fig_a2_credibility.pdf` | `fig:credibility` |
+| [Figure: $\beta_1$, $\beta_2$, $\beta_r$](#fig-mixed) | `jeps_assets/fig_5_abc_parameters.pdf` | `fig:mixed_int` (main text) |
+| [Figure: observational moderators](#fig-obs-moderators) | `jeps_assets/fig_g2_obs_moderators.pdf` | `fig:obs_moderators` (appendix) |
+| [Figure: observational $S_{obs}$, $T_{obs}$ histograms](#fig-obs-st-hist) | `jeps_assets/fig_g8_obs_st_hist.pdf` | `fig:obs_st_hist` (appendix) |
+| [Figure: ITT/LATE](#fig-itt) | `jeps_assets/fig_6_itt_late.pdf` | `fig:ITT` |
+| [Figure: science/trust-conditional](#fig-science) | `jeps_assets/fig_4_science_trust_conditional.pdf` | `fig:ScienceInformation` |
+| [Figure A.1: theory belief in second recommendation](#fig-belief-plot) | `jeps_assets/fig_a1_policy.pdf` | `fig:policy` |
+| [Figure A.2: theory belief reversal](#fig-policy-reversal) | `jeps_assets/fig_a2_policy_reversal.pdf` | `fig:policy_reversal` |
+| [Figure A.3: theory credibility](#fig-credibility) | `jeps_assets/fig_a3_credibility.pdf` | `fig:credibility` |
+| [Figure A.4: theory credibility reversal](#fig-credibility-reversal) | `jeps_assets/fig_a4_credibility_reversal.pdf` | `fig:credibility_reversal` |
+| [Figure A.5: theory $\beta_1$, $\beta_2$, $\beta_r$](#fig-theory-structural) | `jeps_assets/fig_a5_theory_structural.pdf` | `fig:theory_structural` |
+| [Table A: Belief vs credibility $\beta_r$](#tbl-belief-cred) | `jeps_assets/tab_a6_belief_cred.tex` | `table:belief_cred` |
 | [Table B.1: OxCGRT](#tbl-coefficients-policy) | `jeps_assets/tab_b1_oxcgrt.tex` | `table:coefficients:policy` |
 | [Figure B.1: OxCGRT](#fig-policy-updating) | `jeps_assets/fig_b1_oxcgrt.pdf` | `fig:policy:updating` |
 | [Table D.1: summary](#si-summary-stats) | `jeps_assets/tab_d1_summary_stats.tex` | descriptives |
@@ -99,10 +106,11 @@ stopifnot(file.exists(survey_file))
 stopifnot(file.exists(vignette_file))
 stopifnot(file.exists(election_file))
 
+# Display order everywhere: belief-side outcomes first, credibility-side second.
 outcomes_all <- c(
   "convinced_of_message_2",
-  "credible",
   "behave_as_message_2",
+  "credible",
   "competent",
   "correct"
 )
@@ -110,8 +118,8 @@ outcomes_main <- outcomes_all[seq_len(4)]
 outcomes <- outcomes_all
 mod_names <- c(
   "Belief",
-  "Credible",
   "Behave",
+  "Credible",
   "Competent",
   "Correct"
 )
@@ -344,10 +352,10 @@ write_texreg <- function(models, file, caption, label,
   tab <- gsub("\\\\scriptsize\\{\\\\item ", "\\\\scriptsize{", tab)
   if (is.null(tabular)) {
     if (length(models) == 5) {
-      # Vertical rules only at ||: Belief, Credible || Behave, Competent || Correct
+      # Vertical rules only at ||: Belief, Behave || Credible, Competent || Correct
       tabular <- "l c c || c c || c"
     } else if (length(models) == 4) {
-      # Main text: Belief, Credible || Behave, Competent
+      # Main text: Belief, Behave || Credible, Competent
       tabular <- "l c c || c c"
     }
   }
@@ -579,9 +587,9 @@ Copied from the existing Google Trends exhibit (`2_figures/figure_10.pdf`). Hist
 #| fig-cap: "Public debate and prior attitudes towards vaccine mixing."
 
 if (file.exists("2_figures/figure_10.pdf")) {
-  file.copy("2_figures/figure_10.pdf", file.path(fig_dir, "fig_1_debate_priors.pdf"), overwrite = TRUE)
+  file.copy("2_figures/figure_10.pdf", file.path(fig_dir, "fig_2_debate_priors.pdf"), overwrite = TRUE)
 }
-knitr::include_graphics(file.path(fig_dir, "fig_1_debate_priors.pdf"))
+knitr::include_graphics(file.path(fig_dir, "fig_2_debate_priors.pdf"))
 
 prior_mixed_hist <- thirdwave |>
   ggplot(aes(prior_mixed)) +
@@ -683,8 +691,8 @@ summary_data <- bind_rows(
   mutate(
     Y = factor(
       Y,
-      c("convinced", "credible", "act", "competent", "correct"),
-      c("Belief\n(conviction of msg 2)", "Credible", "Behave\n(follow msg 2)", "Competent", "Correct")
+      c("convinced", "act", "credible", "competent", "correct"),
+      c("Belief\n(conviction of msg 2)", "Behave\n(follow msg 2)", "Credible", "Competent", "Correct")
     ),
     prior = factor(prior, unname(prior_lab_long))
   )
@@ -712,7 +720,7 @@ raw_patterns_disagg <-
   )
 
 raw_patterns_disagg
-ggsave(file.path(fig_dir, "fig_2_raw_disagg.pdf"), raw_patterns_disagg, width = 12, height = 9)
+ggsave(file.path(fig_dir, "fig_3_raw_disagg.pdf"), raw_patterns_disagg, width = 12, height = 9)
 ```
 
 ## Table 2. Fully saturated model {#tbl-saturated}
@@ -738,20 +746,29 @@ tab_sat <- write_texreg(
 
 # Add H-label superscripts to hypothesis cells in the saturated table.
 # Rows: Reversals (H1), Reversals×Science (H2), Reversals×Trusted (H3).
-# Belief (col 2) gets a suffix; Credible (col 3) gets b suffix.
+# Belief gets the a suffix; Credible gets the b suffix. Column positions are
+# read off mod_names_main rather than hard-coded, since the display order of the
+# outcomes is set once in the housekeeping chunk.
 sat_tex <- readLines(file.path(fig_dir, "tab_2_saturated.tex"))
+col_belief <- 1L + match("Belief", mod_names_main)
+col_credible <- 1L + match("Credible", mod_names_main)
 
-# For each target row, find the coefficient line (not SE line) and tag cols 2 & 3.
+# For each target row, find the coefficient line (not SE line) and tag the
+# Belief and Credible cells.
 tag_hyp <- function(lines, row_pat, ha, hb) {
   for (i in seq_along(lines)) {
     if (!grepl(row_pat, lines[i], fixed = TRUE)) next
     # Skip SE lines (start with spaces then &)
     if (grepl("^\\s*&\\s*\\$\\(", lines[i])) next
     parts <- strsplit(lines[i], "&", fixed = TRUE)[[1]]
-    if (length(parts) < 3) next
+    if (length(parts) < max(col_belief, col_credible)) next
     # Append tiny superscript after the closing $ in Belief and Credible columns
-    parts[2] <- sub("\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", ha, "} "), parts[2])
-    parts[3] <- sub("\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", hb, "} "), parts[3])
+    parts[col_belief] <- sub(
+      "\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", ha, "} "), parts[col_belief]
+    )
+    parts[col_credible] <- sub(
+      "\\$\\s*$", paste0("$\\\\textsuperscript{\\\\tiny ", hb, "} "), parts[col_credible]
+    )
     lines[i] <- paste(parts, collapse = "&")
     break
   }
@@ -762,7 +779,7 @@ sat_tex <- tag_hyp(sat_tex, "Reversals ($Z_r$)", "H1a", "H1b")
 sat_tex <- tag_hyp(sat_tex, "Reversals $\\times$ Science", "H2a", "H2b")
 sat_tex <- tag_hyp(sat_tex, "Reversals $\\times$ Trusted", "H3a", "H3b")
 
-# Vertical rules only at ||: Belief, Credible || Behave, Competent
+# Vertical rules only at ||: Belief, Behave || Credible, Competent
 sat_tex <- sub(
   "\\\\begin\\{tabular\\}\\{[^}]+\\}",
   "\\\\begin{tabular}{l c c || c c}",
@@ -809,15 +826,198 @@ texreg::htmlreg(
 )
 ```
 
-## Sequencing algebra and structural parameters $\beta_1$, $\beta_2$, and $\beta_r$ {#fig-mixed}
+## Appendix: Belief vs credibility $\beta_r$ benchmark {#tbl-belief-cred}
+
+Fair comparison of $\beta_r$ on Belief ($b$) and Credible ($q'$), same demeaned saturated spec as Table 2. Stacked SUR for $\mathrm{Cov}(\hat\beta_r^B,\hat\beta_r^C)$. Outcomes stay on $[0,1]$; not standardized. The $r=1/2$ test is $\beta_r^B=\tfrac12\beta_r^C$, not $|\beta_r^B|>|\beta_r^C|$. Robustness: Belief vs Competent. Middling priors (closest to $p=1/2$) as a second column.
+
+```{r}
+#| label: tab-belief-cred
+#| results: asis
+
+star_tex <- function(est, se) {
+  z <- abs(est / se)
+  if (!is.finite(z)) return("")
+  if (z >= 2.576) return("^{***}")
+  if (z >= 1.96) return("^{**}")
+  if (z >= 1.645) return("^{*}")
+  ""
+}
+
+fmt_num <- function(x, digits = 3) {
+  formatC(x, digits = digits, format = "f")
+}
+
+fmt_est <- function(est, se, digits = 3) {
+  sprintf("$%s%s$", fmt_num(est, digits), star_tex(est, se))
+}
+
+fmt_se <- function(se, digits = 3) {
+  sprintf("$(%s)$", fmt_num(se, digits))
+}
+
+fmt_ci <- function(lo, hi, digits = 3) {
+  sprintf("$[%s,\\ %s]$", fmt_num(lo, digits), fmt_num(hi, digits))
+}
+
+# Demean on the respondent frame (same means as Table 2 / the subsample),
+# then stack two outcomes and cluster on respondent.
+fit_stacked_br <- function(data, y_b, y_c) {
+  keep <- c(treatment_vars, y_b, y_c)
+  d0 <- data |>
+    select(all_of(keep)) |>
+    filter(if_all(all_of(keep), \(x) !is.na(x))) |>
+    mutate(resp_id = dplyr::row_number())
+  n <- nrow(d0)
+  d0 <- with_demeaned_treatments(d0, treatment_vars)
+  long <- d0 |>
+    tidyr::pivot_longer(
+      all_of(c(y_b, y_c)),
+      names_to = "yname",
+      values_to = "Y"
+    ) |>
+    mutate(is_cred = as.numeric(yname == y_c))
+  fit <- estimatr::lm_robust(
+    Y ~ (inconsistent * trusted * science * safe_time1) * is_cred,
+    data = long,
+    clusters = resp_id,
+    se_type = "CR2"
+  )
+  list(fit = fit, n = n)
+}
+
+br_contrasts <- function(stacked) {
+  fit <- stacked$fit
+  b_term <- "inconsistent"
+  d_term <- "inconsistent:is_cred"
+  stopifnot(b_term %in% names(coef(fit)), d_term %in% names(coef(fit)))
+  rows <- dplyr::bind_rows(
+    lincom_fit(fit, setNames(1, b_term)) |> mutate(qty = "beta_b"),
+    lincom_fit(fit, setNames(c(1, 1), c(b_term, d_term))) |> mutate(qty = "beta_c"),
+    lincom_fit(fit, setNames(-1, d_term)) |> mutate(qty = "diff"),
+    lincom_fit(fit, setNames(c(0.5, -0.5), c(b_term, d_term))) |> mutate(qty = "half")
+  )
+  rows$n <- stacked$n
+  rows
+}
+
+dat_all <- thirdwave
+dat_mid <- thirdwave |> filter(prior_g == "mid")
+
+belief_cred_dat <- dplyr::bind_rows(
+  br_contrasts(fit_stacked_br(dat_all, "convinced_of_message_2", "credible")) |>
+    mutate(sample = "all", pair = "credible"),
+  br_contrasts(fit_stacked_br(dat_mid, "convinced_of_message_2", "credible")) |>
+    mutate(sample = "mid", pair = "credible"),
+  br_contrasts(fit_stacked_br(dat_all, "convinced_of_message_2", "competent")) |>
+    mutate(sample = "all", pair = "competent"),
+  br_contrasts(fit_stacked_br(dat_mid, "convinced_of_message_2", "competent")) |>
+    mutate(sample = "mid", pair = "competent")
+)
+
+# Aggregates only.
+belief_cred_print <- belief_cred_dat |>
+  transmute(
+    pair, sample, qty,
+    estimate = round(estimate, 4),
+    se = round(se, 4),
+    conf.low = round(conf.low, 4),
+    conf.high = round(conf.high, 4),
+    n
+  )
+knitr::kable(
+  belief_cred_print,
+  digits = 3,
+  caption = "Stacked SUR reversal penalties. Aggregates only."
+)
+
+pull_row <- function(pair, sample, qty) {
+  belief_cred_dat[
+    belief_cred_dat$pair == pair &
+      belief_cred_dat$sample == sample &
+      belief_cred_dat$qty == qty,
+  ]
+}
+
+tex_qty_rows <- function(pair, qty, lab_tex) {
+  a <- pull_row(pair, "all", qty)
+  m <- pull_row(pair, "mid", qty)
+  c(
+    paste0(
+      lab_tex, " & ",
+      fmt_est(a$estimate, a$se), " & ",
+      fmt_ci(a$conf.low, a$conf.high), " & ",
+      fmt_est(m$estimate, m$se), " & ",
+      fmt_ci(m$conf.low, m$conf.high), " \\\\"
+    ),
+    paste0(
+      " & ", fmt_se(a$se), " & & ", fmt_se(m$se), " & \\\\"
+    )
+  )
+}
+
+n_all_cred <- unique(pull_row("credible", "all", "beta_b")$n)
+n_mid_cred <- unique(pull_row("credible", "mid", "beta_b")$n)
+n_all_comp <- unique(pull_row("competent", "all", "beta_b")$n)
+n_mid_comp <- unique(pull_row("competent", "mid", "beta_b")$n)
+
+fmt_n <- function(n) sprintf("$%s$", prettyNum(n, big.mark = "{,}"))
+
+tex_lines <- c(
+  "\\begin{table}[ht]",
+  "\\centering",
+  "\\begin{tabular}{l c c c c}",
+  "\\hline",
+  " & \\multicolumn{2}{c}{All} & \\multicolumn{2}{c}{Middling priors} \\\\",
+  "\\cline{2-3}\\cline{4-5}",
+  " & Est.\\ (SE) & 95\\% CI & Est.\\ (SE) & 95\\% CI \\\\",
+  "\\hline",
+  "\\multicolumn{5}{l}{\\textit{Primary: Belief vs.\\ Credible}} \\\\",
+  tex_qty_rows("credible", "beta_b", "$\\beta_r^{\\mathrm{Belief}}$"),
+  tex_qty_rows("credible", "beta_c", "$\\beta_r^{\\mathrm{Cred}}$"),
+  tex_qty_rows("credible", "diff", "$\\beta_r^{\\mathrm{Belief}}-\\beta_r^{\\mathrm{Cred}}$"),
+  tex_qty_rows("credible", "half", "$\\beta_r^{\\mathrm{Belief}}-\\tfrac12\\beta_r^{\\mathrm{Cred}}$"),
+  paste0("Respondents ($N$) & \\multicolumn{2}{c}{", fmt_n(n_all_cred), "} & \\multicolumn{2}{c}{", fmt_n(n_mid_cred), "} \\\\"),
+  "\\hline",
+  "\\multicolumn{5}{l}{\\textit{Robustness: Belief vs.\\ Competent}} \\\\",
+  tex_qty_rows("competent", "beta_b", "$\\beta_r^{\\mathrm{Belief}}$"),
+  tex_qty_rows("competent", "beta_c", "$\\beta_r^{\\mathrm{Comp}}$"),
+  tex_qty_rows("competent", "diff", "$\\beta_r^{\\mathrm{Belief}}-\\beta_r^{\\mathrm{Comp}}$"),
+  tex_qty_rows("competent", "half", "$\\beta_r^{\\mathrm{Belief}}-\\tfrac12\\beta_r^{\\mathrm{Comp}}$"),
+  paste0("Respondents ($N$) & \\multicolumn{2}{c}{", fmt_n(n_all_comp), "} & \\multicolumn{2}{c}{", fmt_n(n_mid_comp), "} \\\\"),
+  "\\hline",
+  "\\multicolumn{5}{l}{\\scriptsize{$^{***}p<0.01$; $^{**}p<0.05$; $^{*}p<0.1$}}",
+  "\\end{tabular}",
+  paste0(
+    "\\caption{Belief versus credibility reversal penalties. Treatments demeaned ",
+    "\\citep{lin2013agnostic}. Outcomes on $[0,1]$, the same coding as the rest of the paper, ",
+    "not a claim that the items are probabilities. The $\\tfrac12$ test is the ",
+    "no-prior $r=1/2$ (and $p=1/2$) benchmark ",
+    "$\\beta_r^{\\mathrm{Belief}}=\\tfrac12\\beta_r^{\\mathrm{Cred}}$.}"
+  ),
+  "\\label{table:belief_cred}",
+  paste0(
+    "\\floatfoot{Note: Same saturated specification as Table~\\ref{table:saturated} ",
+    "($Z_r\\times Z_1\\times Z_t\\times Z_s$). Stacked SUR: two outcomes in long ",
+    "format, treatments $\\times$ outcome, cluster-robust (CR2) SEs on respondent. ",
+    "95\\% intervals, delta method. Primary pair: Belief vs.\\ Credible. ",
+    "Robustness: Belief vs.\\ Competent. Middling column restricts to the interior ",
+    "prior group (cuts $3.3$/$6.6$), the case closest to $p=1/2$.}"
+  ),
+  "\\end{table}"
+)
+
+writeLines(tex_lines, file.path(fig_dir, "tab_a6_belief_cred.tex"))
+```
+
+## Sequencing algebra and estimands $\beta_1$, $\beta_2$, and $\beta_r$ {#fig-mixed}
 
 Paper order: seeming sequence split already in Table 2 (`inconsistent` vs `inconsistent × first-safe`); then the $\beta_1,\beta_2,\beta_r$ write-up and two $2\times 2$ arrays (`fig:two_by_twos`, TeX only); then this figure. The order-conditional coefficient grid (`fig_3_order_effects.pdf`) and mixed-message table (`tab_3_mixed_messages.tex`) are appendix, with the G order subsample tables.
 
-One float, two stacked `plot_cond_grid` panels (`patchwork`, heights 3:2). **Top:** $\beta_r$, $\beta_r\times Z_s$, $\beta_r\times Z_t$, shared $x$ (`scales = "fixed"`). **Bottom:** $\beta_1$ and $\beta_2$ on **all four** main-text outcomes, including Belief and Behave; `scales = "free_x"`. **ALL** from `saturated` (Table 2). Prior colors from the **same** pooled four-treatment $\times$ prior-group model as the appendix prior grid (`saturated_prior`), not from subsample fits. Mapping (Lin-demeaned 0/1 treatments): $\beta_r=$ `inconsistent` $=Z_r$ (the coefficient directly; $\beta_r<0$ for a penalty); $\beta_r\times Z_s=$ `inconsistent:science`; $\beta_r\times Z_t=$ `inconsistent:trusted`; $\beta_1=$ `safe_time1` $=Z_1$; $\beta_2=$ $-\tfrac12\times$`inconsistent:safe_time1` $=-\tfrac12\times(Z_r\times Z_1)$. Dodge/legend: ALL, Low, Middling, High (not alphabetical); ALL at the top of each cluster. Shared legend at the bottom. H1a--H3b on the top-panel ALL points at Belief/Credible. The `saturated_prior` *fit* stays here because this figure needs it; only the prior-coefficient *plot* is with the appendix exhibits. Main-text column order is Belief, Credible, Behave, Competent on **both** panels; outcome strip labels on both. Correct is appendix-only.
+One float, two stacked `plot_cond_grid` panels (`patchwork`, heights 3:2). **Top:** $\beta_r$, $\beta_r\times Z_s$, $\beta_r\times Z_t$, shared $x$ (`scales = "fixed"`). **Bottom:** $\beta_1$ and $\beta_2$ on **all four** main-text outcomes, including Belief and Behave; `scales = "free_x"`. **ALL** from `saturated` (Table 2). Prior colors from the **same** pooled four-treatment $\times$ prior-group model as the appendix prior grid (`saturated_prior`), not from subsample fits. Mapping (Lin-demeaned 0/1 treatments): $\beta_r=$ `inconsistent` $=Z_r$ (the coefficient directly; $\beta_r<0$ for a penalty); $\beta_r\times Z_s=$ `inconsistent:science`; $\beta_r\times Z_t=$ `inconsistent:trusted`; $\beta_1=$ `safe_time1` $=Z_1$; $\beta_2=$ $-\tfrac12\times$`inconsistent:safe_time1` $=-\tfrac12\times(Z_r\times Z_1)$. Dodge/legend: ALL, Low, Middling, High (not alphabetical); ALL at the top of each cluster. Shared legend at the bottom. H1a--H3b on the top-panel ALL points at Belief/Credible. The `saturated_prior` *fit* stays here because this figure needs it; only the prior-coefficient *plot* is with the appendix exhibits. Main-text column order is Belief, Behave, Credible, Competent on **both** panels; outcome strip labels on both. Correct is appendix-only.
 
 ```{r}
 #| label: paper-figure-mixed
-#| fig-cap: "Structural parameters. Top: reversal penalty $\\beta_r$ and science and trusted-sender shifts (shared $x$). Bottom: $\\beta_1$ and $\\beta_2$ on all four outcomes (free $x$)."
+#| fig-cap: "Estimands. Top: reversal penalty $\\beta_r$ and science and trusted-sender shifts (shared $x$). Bottom: $\\beta_1$ and $\\beta_2$ on all four outcomes (free $x$)."
 
 # Fit the prior-interacted model once here (appendix prior-grid plot reuses it).
 if (!exists("saturated_prior")) {
@@ -900,7 +1100,7 @@ effects_top <- c("$\\beta_r$", "$\\beta_r \\times Z_s$", "$\\beta_r \\times Z_t$
 effects_bot <- c("$\\beta_1$", "$\\beta_2$")
 # Main-text columns, left to right. Re-applied immediately before ggplot;
 # character outcome (e.g. after a join) makes facet_grid alphabetize.
-abc_col_order <- c("Belief", "Credible", "Behave", "Competent")
+abc_col_order <- outcome_labels_main
 abc_top <- abc_main |>
   filter(as.character(effect) %in% effects_top) |>
   mutate(effect = factor(effect, effects_top))
@@ -997,7 +1197,7 @@ fig_abc <- fig_abc_top / fig_abc_bot +
   theme(legend.position = "bottom")
 
 fig_abc
-ggsave(file.path(fig_dir, "fig_7_abc_parameters.pdf"), fig_abc, width = 11, height = 9)
+ggsave(file.path(fig_dir, "fig_5_abc_parameters.pdf"), fig_abc, width = 11, height = 9)
 ```
 
 ```{r}
@@ -1074,6 +1274,253 @@ dodge_lab <- as.character(src$series[match(round(one$x, 8), round(src$estimate, 
 cat("abc visual top-to-bottom (Belief, beta_r): ", paste(dodge_lab, collapse = " | "), "\n", sep = "")
 ```
 
+## Figure. Observational trust and science-change beliefs {#fig-obs-moderators}
+
+Appendix analogue of Figure~\ref{fig:mixed_int}: same $\beta_1$, $\beta_2$, $\beta_r$ reading, same $Z_1$ / prior-group skeleton, but $Z_t$ and $Z_s$ replaced by observational $[0,1]$ measures. **Trust** is pre-treatment trust in the *assigned* sender (`trust_stiko` if $Z_t=1$, `trust_government` if $Z_t=0$), 0--4 divided by 4. **Science-change** is the post-video manipulation check (`manipulation_science`: contradicting studies compatible with scientific knowledge advancement); 1 = yes maps to 1, 2 = no maps to 0. There is no pre-treatment science-change item. Message treatments and the two observational covariates are demeaned, so $\beta_r$ is the average over their sample distribution and the plotted shifts are 0$\to$1 moves on the item scale (not the sample range). Experimental $Z_t$ and $Z_s$ stay in the paper; this fit does not include them.
+
+```{r}
+#| label: paper-figure-obs-moderators
+#| fig-cap: "Estimands with observational trust and science-change beliefs. Top: $\\beta_r$ and 0-to-1 shifts. Bottom: $\\beta_1$ and $\\beta_2$."
+
+obs_mod_vars <- c("inconsistent", "obs_trust", "obs_science", "safe_time1")
+obs_rhs <- "inconsistent * obs_trust * obs_science * safe_time1"
+
+dat_obs <- thirdwave |>
+  mutate(
+    obs_trust = if_else(
+      as.numeric(trusted) == 1,
+      as.numeric(trust_stiko),
+      as.numeric(trust_government)
+    ) / 4,
+    obs_science = as.numeric(as.numeric(manipulation_science) == 1)
+  ) |>
+  filter(!is.na(obs_trust), !is.na(obs_science))
+
+saturated_obs <- lapply(outcomes, function(y) {
+  d <- with_demeaned_treatments(dat_obs, obs_mod_vars)
+  lm_robust(as.formula(paste(y, "~", obs_rhs)), data = d)
+})
+
+dat_obs_prior <- dat_obs |>
+  filter(!is.na(prior_g))
+obs_prior_rhs <- paste(obs_rhs, "* prior_g")
+saturated_obs_prior <- lapply(outcomes, function(y) {
+  d <- with_demeaned_treatments(dat_obs_prior, obs_mod_vars)
+  lm_robust(as.formula(paste(y, "~", obs_prior_rhs)), data = d)
+})
+
+obs_prior_levels <- levels(dat_obs_prior$prior_g)
+obs_prior_mains <- grep("^prior_g", names(coef(saturated_obs_prior[[1]])), value = TRUE)
+obs_prior_mains <- obs_prior_mains[!grepl(":", obs_prior_mains)]
+obs_prior_dummies <- setNames(rep(NA_character_, length(obs_prior_levels)), obs_prior_levels)
+for (nm in obs_prior_mains) {
+  lev <- sub("^prior_g", "", nm)
+  if (lev %in% names(obs_prior_dummies)) obs_prior_dummies[[lev]] <- nm
+}
+
+# Same legend / dodge as Figure 5 (defined there; copied so this chunk can run after housekeeping).
+obs_abc_series <- c("ALL", "Low", "Middling", "High")
+obs_prior_lab <- c(low = "Low", mid = "Middling", high = "High")
+obs_col_order <- outcome_labels_main
+obs_abc_colors <- c(
+  "ALL" = "grey20",
+  "Low" = "#66c2a5",
+  "Middling" = "#fc8d62",
+  "High" = "#8da0cb"
+)
+obs_abc_shapes <- c(
+  "ALL" = 15,
+  "Low" = 16,
+  "Middling" = 17,
+  "High" = 18
+)
+obs_scales_extra <- function(p, d) {
+  p +
+    scale_color_manual(values = obs_abc_colors, breaks = obs_abc_series) +
+    scale_shape_manual(values = obs_abc_shapes, breaks = obs_abc_series) +
+    scale_y_discrete(limits = rev, labels = latex2exp::TeX)
+}
+if (!exists("scale_pairs")) {
+  scale_pairs <- function(pairs, scale) {
+    setNames(as.numeric(pairs) * scale, names(pairs))
+  }
+}
+
+effect_defs_obs <- tibble::tribble(
+  ~effect, ~base, ~scale,
+  "$\\beta_r$", "inconsistent", 1,
+  "$\\beta_r \\times S_{obs}$", "inconsistent:obs_science", 1,
+  "$\\beta_r \\times T_{obs}$", "inconsistent:obs_trust", 1,
+  "$\\beta_1$", "safe_time1", 1,
+  "$\\beta_2$", "inconsistent:safe_time1", -0.5
+) |>
+  mutate(effect = factor(effect, unique(effect)))
+
+obs_overall <- map2_dfr(saturated_obs, outcome_labels, function(fit, lab) {
+  map_dfr(seq_len(nrow(effect_defs_obs)), function(i) {
+    sp <- effect_defs_obs[i, ]
+    lincom_fit(fit, scale_pairs(pairs_at_group(sp$base, NA_character_), sp$scale)) |>
+      mutate(
+        outcome = lab,
+        effect = sp$effect,
+        series = "ALL"
+      )
+  })
+})
+
+obs_prior <- map2_dfr(saturated_obs_prior, outcome_labels, function(fit, lab) {
+  map_dfr(names(obs_prior_dummies), function(g) {
+    dum <- obs_prior_dummies[[g]]
+    map_dfr(seq_len(nrow(effect_defs_obs)), function(i) {
+      sp <- effect_defs_obs[i, ]
+      lincom_fit(fit, scale_pairs(pairs_at_group(sp$base, dum), sp$scale)) |>
+        mutate(
+          outcome = lab,
+          effect = sp$effect,
+          series = unname(obs_prior_lab[[g]])
+        )
+    })
+  })
+})
+
+abc_obs_dat <- bind_rows(obs_overall, obs_prior) |>
+  mutate(
+    outcome = factor(outcome, outcome_labels),
+    series = factor(series, obs_abc_series),
+    effect = factor(effect, levels = levels(effect_defs_obs$effect))
+  )
+
+abc_obs_main <- keep_main_outcomes(abc_obs_dat)
+
+effects_obs_top <- c("$\\beta_r$", "$\\beta_r \\times S_{obs}$", "$\\beta_r \\times T_{obs}$")
+effects_obs_bot <- c("$\\beta_1$", "$\\beta_2$")
+abc_obs_top <- abc_obs_main |>
+  filter(as.character(effect) %in% effects_obs_top) |>
+  mutate(
+    effect = factor(effect, effects_obs_top),
+    outcome = factor(as.character(outcome), obs_col_order)
+  )
+abc_obs_bot <- abc_obs_main |>
+  filter(as.character(effect) %in% effects_obs_bot) |>
+  mutate(
+    effect = factor(effect, effects_obs_bot),
+    outcome = factor(as.character(outcome), obs_col_order)
+  )
+
+fig_obs_top <- plot_cond_grid(
+  abc_obs_top,
+  color_var = "series",
+  color_lab = "ALL / prior group",
+  caption = NULL,
+  dodge = 0.65,
+  row_facets = FALSE,
+  dodge_reverse = TRUE,
+  scales = "fixed",
+  extra = obs_scales_extra
+)
+
+fig_obs_bot <- plot_cond_grid(
+  abc_obs_bot,
+  color_var = "series",
+  color_lab = "ALL / prior group",
+  caption = NULL,
+  dodge = 0.65,
+  row_facets = FALSE,
+  dodge_reverse = TRUE,
+  scales = "free_x",
+  extra = obs_scales_extra
+)
+
+fig_obs_moderators <- fig_obs_top / fig_obs_bot +
+  plot_layout(heights = c(3, 2), guides = "collect") &
+  theme(legend.position = "bottom")
+
+fig_obs_moderators
+ggsave(
+  file.path(fig_dir, "fig_g2_obs_moderators.pdf"),
+  fig_obs_moderators,
+  width = 11,
+  height = 9,
+  device = cairo_pdf
+)
+
+# Aggregates only.
+cat("N (obs four-way, Belief): ", nobs(saturated_obs[[1]]), "\n", sep = "")
+cat("N (obs prior-interacted, Belief): ", nobs(saturated_obs_prior[[1]]), "\n", sep = "")
+cat(
+  "Mean obs_trust: ", round(mean(dat_obs$obs_trust), 3),
+  "; mean obs_science: ", round(mean(dat_obs$obs_science), 3),
+  "; share science-change = 1: ", round(mean(dat_obs$obs_science), 3),
+  "\n",
+  sep = ""
+)
+print(
+  abc_obs_dat |>
+    filter(series == "ALL", outcome %in% c("Belief", "Credible", "Behave", "Competent")) |>
+    select(outcome, effect, estimate, se, conf.low, conf.high),
+  digits = 3
+)
+```
+
+## Figure. Observational $S_{\mathrm{obs}}$ and $T_{\mathrm{obs}}$ histograms {#fig-obs-st-hist}
+
+Same $[0,1]$ coding as the observational-moderator figure. $S_{\mathrm{obs}}$ is binary (post-video manipulation check); $T_{\mathrm{obs}}$ is the 0--4 trust item divided by 4. Reuses `dat_obs` from the previous chunk. Aggregates only.
+
+```{r}
+#| label: paper-figure-obs-st-hist
+#| fig-cap: "Distributions of observational science-change and trust, both on [0, 1]."
+
+obs_st_counts <- bind_rows(
+  tibble(panel = "S[plain(obs)]", value = dat_obs$obs_science),
+  tibble(panel = "T[plain(obs)]", value = dat_obs$obs_trust)
+) |>
+  count(panel, value) |>
+  mutate(panel = factor(panel, levels = c("S[plain(obs)]", "T[plain(obs)]")))
+
+fig_obs_st_hist <- ggplot(obs_st_counts, aes(x = value, y = n)) +
+  geom_col(width = 0.12, fill = "grey40") +
+  facet_wrap(~ panel, ncol = 2, labeller = label_parsed) +
+  scale_x_continuous(
+    limits = c(-0.08, 1.08),
+    breaks = seq(0, 1, 0.25)
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(x = "Value on [0, 1]", y = "Respondents") +
+  theme_bw(base_size = 11) +
+  theme(
+    plot.margin = margin(2, 6, 2, 4),
+    panel.spacing = unit(8, "pt"),
+    strip.text = element_text(size = 11, margin = margin(1.5, 2, 1.5, 2)),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 9)
+  )
+
+fig_obs_st_hist
+ggsave(
+  file.path(fig_dir, "fig_g8_obs_st_hist.pdf"),
+  fig_obs_st_hist,
+  width = 8,
+  height = 2.5,
+  device = cairo_pdf
+)
+
+# Aggregates only: discrete-point counts, not rows.
+cat("N (obs hist sample): ", nrow(dat_obs), "\n", sep = "")
+cat(
+  "Share S_obs = 1: ", round(mean(dat_obs$obs_science), 3),
+  "; mean T_obs: ", round(mean(dat_obs$obs_trust), 3),
+  "\n",
+  sep = ""
+)
+print(
+  obs_st_counts |>
+    group_by(panel) |>
+    mutate(share = n / sum(n)) |>
+    ungroup(),
+  digits = 3
+)
+```
+
 ## Figure. ITT and LATE {#fig-itt}
 
 Four outcomes as Table 2 (Correct in the appendix). Assignment instruments perceived inconsistency.
@@ -1130,7 +1577,7 @@ figure_itt <- keep_main_outcomes(data_figure5) |>
   coord_flip()
 
 figure_itt
-ggsave(file.path(fig_dir, "fig_4_itt_late.pdf"), figure_itt, width = 8, height = 5)
+ggsave(file.path(fig_dir, "fig_6_itt_late.pdf"), figure_itt, width = 8, height = 5)
 ```
 
 ```{r}
@@ -1157,7 +1604,12 @@ From the **same** Table 2 fits (pooled Lin-saturated `inconsistent * trusted * s
 
 ```{r}
 #| label: paper-figure-science
-#| fig-cap: "Effect of reversal conditional on the science-video arm (top) and the trusted-sender arm (bottom), from the Table 2 saturated model."
+#| fig-cap: "Effect of reversal conditional on the science-video arm (top) and the trusted-sender arm (bottom)."
+
+# Facet strips: plotmath strings + label_parsed (cairo_pdf). Passing TeX() as a
+# labeller stringifies the expression, so strips showed raw Z[s] / Z[t] *.
+mod_src <- c("Science video ($Z_s$)", "Trusted sender ($Z_t$)")
+mod_plotmath <- unname(latex2exp::TeX(mod_src, output = "character"))
 
 science_me <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
   sci <- map_dfr(c(0, 1), function(s) {
@@ -1165,7 +1617,7 @@ science_me <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
     lincom_fit(fit, c(inconsistent = 1, `inconsistent:science` = s_d)) |>
       mutate(
         outcome = lab,
-        moderator = "Science video ($Z_s$)",
+        moderator = mod_src[[1]],
         arm = if_else(s == 1, "Science on", "Science off"),
         z = s
       )
@@ -1175,7 +1627,7 @@ science_me <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
     lincom_fit(fit, c(inconsistent = 1, `inconsistent:trusted` = t_d)) |>
       mutate(
         outcome = lab,
-        moderator = "Trusted sender ($Z_t$)",
+        moderator = mod_src[[2]],
         arm = if_else(t == 1, "Trusted", "Untrusted"),
         z = t
       )
@@ -1184,10 +1636,7 @@ science_me <- map2_dfr(saturated, outcome_labels, function(fit, lab) {
 }) |>
   mutate(
     outcome = factor(outcome, outcome_labels),
-    moderator = factor(
-      moderator,
-      c("Science video ($Z_s$)", "Trusted sender ($Z_t$)")
-    ),
+    moderator = factor(moderator, mod_src, labels = mod_plotmath),
     arm = factor(
       arm,
       c("Science off", "Science on", "Untrusted", "Trusted")
@@ -1208,16 +1657,15 @@ fig_science <- keep_main_outcomes(science_me) |>
     moderator ~ outcome,
     scales = "free_y",
     labeller = labeller(
-      moderator = latex2exp::TeX,
-      outcome = identity
+      moderator = label_parsed,
+      outcome = label_value
     )
   ) +
   xlab("Effect of reversal") +
   ylab("") +
   labs(
     color = "Moderator level",
-    shape = "Moderator level",
-    caption = "Lin-demeaned four-way (Table 2). Top: Zr at Zs = 0 vs 1. Bottom: Zr at Zt = 0 vs 1. Other arms at their means. Belief = conviction of msg 2; Behave = follow msg 2. Outcomes on [0,1]. 95% intervals."
+    shape = "Moderator level"
   ) +
   theme_bw() +
   theme(
@@ -1227,10 +1675,11 @@ fig_science <- keep_main_outcomes(science_me) |>
 
 fig_science
 ggsave(
-  file.path(fig_dir, "fig_5_science_trust_conditional.pdf"),
+  file.path(fig_dir, "fig_4_science_trust_conditional.pdf"),
   fig_science,
   width = 10,
-  height = 6.5
+  height = 6.2,
+  device = cairo_pdf
 )
 ```
 
@@ -1317,7 +1766,7 @@ p_1_00 <- function(p, a, q, r) {
 df2 <- expand_grid(
   p = c(.05, .25, .5, .75, .95),
   a = c(.51, .625, .75, .875, .95),
-  q = seq(.01, .99, length = 25),
+  q = seq(.05, .95, length = 25),
   r = 2 / 3
 ) |>
   mutate(
@@ -1329,7 +1778,133 @@ df2 <- expand_grid(
     pol_1_10 = p_1_10(p, a, q, r),
     pol_1_01 = p_1_01(p, a, q, r),
     pol_1_00 = p_1_00(p, a, q, r)
+  ) |>
+  # Belief in the second recommendation: P(w_2 = j | messages i, j).
+  # Theory analogue of the Belief outcome, so paths ending in 0 are flipped.
+  mutate(
+    b2_11 = pol_1_11,
+    b2_01 = pol_1_01,
+    b2_10 = 1 - pol_1_10,
+    b2_00 = 1 - pol_1_00
+  ) |>
+  # Reversal contrasts, holding the first message fixed.
+  mutate(
+    inc_b2_first0 = b2_01 - b2_00,
+    inc_b2_first1 = b2_10 - b2_11,
+    inc_c_first0 = c_01 - c_00,
+    inc_c_first1 = c_10 - c_11
+  ) |>
+  # The same credibility contrasts in log odds. Since
+  # logit(c_ij) = logit(q) - log(L_ij / p_ij), these do not depend on q.
+  mutate(
+    inc_lo_first0 = qlogis(c_01) - qlogis(c_00),
+    inc_lo_first1 = qlogis(c_10) - qlogis(c_11)
   )
+
+# Strip labels, theme, and the reversal-figure recipe, shared by the theory
+# figures. The extra horizontal panel spacing keeps the "1.0" tick label of one
+# facet column clear of the "0.0" of the next across five columns.
+theory_theme <- function() {
+  theme_bw() + theme(panel.spacing.x = unit(1, "lines"))
+}
+
+theory_lab_a <- function(x) {
+  factor(x, unique(x), latex2exp::TeX(paste0("$\\alpha = ", unique(x), "$")))
+}
+
+theory_lab_p <- function(x) {
+  factor(x, unique(x), latex2exp::TeX(paste0("$p = ", unique(x), "$")))
+}
+
+# Long form for a reversal figure: the two conditional contrasts plus their
+# unweighted mean, the analogue of the pooled beta_r under 50/50 assignment.
+theory_reversal_long <- function(d, v_first0, v_first1) {
+  d |>
+    select(p, a, q, first0 = all_of(v_first0), first1 = all_of(v_first1)) |>
+    mutate(avg = (first0 + first1) / 2) |>
+    pivot_longer(c(first0, first1, avg), names_to = "start", values_to = "val") |>
+    mutate(start = factor(
+      start,
+      c("first0", "first1", "avg"),
+      c("Reversal | first message 0", "Reversal | first message 1", "Average")
+    ))
+}
+
+theory_reversal_plot <- function(d, ylab) {
+  d |>
+    mutate(a = theory_lab_a(a), p = theory_lab_p(p)) |>
+    ggplot(aes(q, val, color = start)) +
+    geom_hline(yintercept = 0, linetype = "longdash", color = "grey40") +
+    geom_line() +
+    facet_grid(a ~ p, labeller = label_parsed) +
+    ylab(ylab) +
+    xlab("q: prior confidence in authority") +
+    labs(
+      color = "",
+      caption = "r = 2/3. Each contrast holds the first message fixed."
+    ) +
+    theory_theme() +
+    scale_x_continuous(breaks = seq(0, 1, by = 0.25))
+}
+```
+
+```{r}
+#| label: fig-belief-plot
+#| fig-cap: "Theoretical predictions for belief in the second recommendation."
+
+fig_belief <-
+  df2 |>
+  select(p, a, q, r, b2_11, b2_10, b2_01, b2_00) |>
+  pivot_longer(
+    c(b2_11, b2_10, b2_01, b2_00),
+    names_to = "condition",
+    values_to = "val"
+  ) |>
+  mutate(
+    condition = factor(
+      condition,
+      c("b2_00", "b2_01", "b2_10", "b2_11"),
+      c("0 then 0", "0 then 1", "1 then 0", "1 then 1")
+    ),
+    a = theory_lab_a(a),
+    p = theory_lab_p(p)
+  ) |>
+  ggplot(aes(q, val, color = condition)) +
+  geom_line() +
+  facet_grid(a ~ p, labeller = label_parsed) +
+  ylab("Belief in the second recommendation") +
+  xlab("q: prior confidence in authority") +
+  labs(caption = "r = 2/3.") +
+  theory_theme() +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.25))
+
+fig_belief
+ggsave(
+  file.path(fig_dir, "fig_a1_policy.pdf"),
+  fig_belief,
+  width = 10,
+  height = 6,
+  device = cairo_pdf
+)
+```
+
+```{r}
+#| label: fig-policy-reversal
+#| fig-cap: "Theoretical effect of a reversal on belief in the second recommendation, by first message."
+
+fig_policy_reversal <-
+  df2 |>
+  theory_reversal_long("inc_b2_first0", "inc_b2_first1") |>
+  theory_reversal_plot("Effect of reversal on belief in the second recommendation")
+
+fig_policy_reversal
+ggsave(
+  file.path(fig_dir, "fig_a2_policy_reversal.pdf"),
+  fig_policy_reversal,
+  width = 10,
+  height = 6,
+  device = cairo_pdf
+)
 ```
 
 ```{r}
@@ -1354,52 +1929,342 @@ fig_credibility <-
   facet_grid(a ~ p, labeller = label_parsed) +
   ylab("Credibility given statement") +
   xlab("q: prior confidence in authority") +
-  labs(
-    subtitle = "α = P(deemed-optimal policy persists as evidence may change); underlying optimality does not",
-    caption = "r = 2/3. High α: deemed-optimal policy is expected to persist."
-  ) +
-  theme_bw() +
+  labs(caption = "r = 2/3. High α: deemed-optimal policy is expected to persist.") +
+  theory_theme() +
   scale_x_continuous(breaks = seq(0, 1, by = 0.25))
 
 fig_credibility
-ggsave(file.path(fig_dir, "fig_a2_credibility.pdf"), fig_credibility, width = 10, height = 6)
+ggsave(
+  file.path(fig_dir, "fig_a3_credibility.pdf"),
+  fig_credibility,
+  width = 10,
+  height = 6,
+  device = cairo_pdf
+)
 ```
 
 ```{r}
-#| label: fig-policy-plot
-#| fig-cap: "Theoretical predictions for support for policy 1."
+#| label: fig-credibility-reversal
+#| fig-cap: "Theoretical effect of a reversal on credibility, by first message."
 
-fig_policy <-
+fig_credibility_reversal <-
   df2 |>
-  select(p, a, q, r, pol_1_11, pol_1_10, pol_1_01, pol_1_00) |>
-  pivot_longer(
-    c(pol_1_11, pol_1_10, pol_1_01, pol_1_00),
-    names_to = "condition",
-    values_to = "val"
-  ) |>
-  mutate(
-    condition = factor(
-      condition,
-      c("pol_1_00", "pol_1_01", "pol_1_10", "pol_1_11"),
-      c("0 then 0", "0 then 1", "1 then 0", "1 then 1")
-    ),
-    a = factor(a, unique(a), latex2exp::TeX(paste0("$\\alpha = ", unique(a), "$"))),
-    p = factor(p, unique(p), latex2exp::TeX(paste0("$p = ", unique(p), "$")))
-  ) |>
-  ggplot(aes(q, val, color = condition)) +
-  geom_line() +
-  facet_grid(a ~ p, labeller = label_parsed) +
-  ylab("Support for policy 1") +
-  xlab("q: prior confidence in authority") +
-  labs(
-    subtitle = "α = P(deemed-optimal policy persists as evidence may change); underlying optimality does not",
-    caption = "r = 2/3."
-  ) +
-  theme_bw() +
-  scale_x_continuous(breaks = seq(0, 1, by = 0.25))
+  theory_reversal_long("inc_c_first0", "inc_c_first1") |>
+  theory_reversal_plot("Effect of reversal on credibility")
 
-fig_policy
-ggsave(file.path(fig_dir, "fig_a1_policy.pdf"), fig_policy, width = 10, height = 6)
+fig_credibility_reversal
+ggsave(
+  file.path(fig_dir, "fig_a4_credibility_reversal.pdf"),
+  fig_credibility_reversal,
+  width = 10,
+  height = 6,
+  device = cairo_pdf
+)
+```
+
+The log-odds reversal contrast is identically independent of $q$
+(`logit(q'_ij) = logit(q) + log(κ_ij/Λ_ij)`); that identity is now equation
+(eq:logitq) in the appendix, so the log-odds figure is not generated.
+
+### Theoretical analogue of the $\beta_1$ / $\beta_2$ / $\beta_r$ figure {#fig-theory-structural-note}
+
+Reads the model at the paper's own design points and pushes it through the same
+saturated decomposition as `fig_5_abc_parameters.pdf`, so the theory can be read
+for **sign and ordering** against the main-text figure. Magnitudes are not
+comparable: theoretical outcomes are posterior probabilities, empirical ones are
+0--10 ratings rescaled to $[0,1]$.
+
+Direction of $Z_s$. Table 1 defines $Z_s = 1$ as the video teaching that changing
+evidence is normal science, and $\alpha$ is the probability the deemed-optimal
+policy *persists*. The video therefore moves citizens to **low** $\alpha$:
+$Z_s = 1 \leftrightarrow \alpha = 0.6$, $Z_s = 0 \leftrightarrow \alpha = 0.9$, and
+$\beta_r \times Z_s$ is the $\alpha = 0.6$ minus $\alpha = 0.9$ difference.
+Taking it the other way round would make the model predict that the video
+*aggravates* the credibility penalty, the reverse of H2b. $Z_t = 1$ is the trusted
+sender. The $q$ arms are $0.5$ and $0.9$: the probability-scale penalty is U-shaped
+in $q$, deepening from the floor and shrinking only past the trough (at or above
+$0.5$), so this is the comparison H3b is about.
+
+```{r}
+#| label: fig-theory-structural
+#| fig-cap: "Model-implied estimands $\\beta_1$, $\\beta_2$, $\\beta_r$ at the paper's design points. Exact predictions; no sampling uncertainty."
+
+ts_a_science <- 0.6    # Z_s = 1: the video lowers expected persistence
+ts_a_control <- 0.9    # Z_s = 0
+ts_q_trusted <- 0.9    # Z_t = 1: high-end of the U-shape
+ts_q_untrusted <- 0.5  # Z_t = 0: at or below the trough
+ts_r <- 2 / 3
+
+# p at the midpoints of the paper's prior cuts (3.3 / 6.6 on 0-10, rescaled).
+ts_prior_vals <- c(Low = 0.165, Middling = 0.495, High = 0.83)
+# Empirical prior-group shares, n = 1978 / 3373 / 5105 of 10456: the ALL series
+# is the pooled estimate, hence size-weighted, not an unweighted average.
+ts_prior_w <- c(Low = 0.189, Middling = 0.323, High = 0.488)
+ts_series_order <- c("ALL", "Low", "Middling", "High")
+
+ts_cells <- expand_grid(
+  prior = names(ts_prior_vals),
+  a = c(ts_a_science, ts_a_control),
+  q = c(ts_q_untrusted, ts_q_trusted)
+) |>
+  mutate(p = unname(ts_prior_vals[prior]), r = ts_r) |>
+  mutate(
+    c_11 = p_c_11(p, a, q, r),
+    c_10 = p_c_10(p, a, q, r),
+    c_01 = p_c_01(p, a, q, r),
+    c_00 = p_c_00(p, a, q, r),
+    pol_11 = p_1_11(p, a, q, r),
+    pol_10 = p_1_10(p, a, q, r),
+    pol_01 = p_1_01(p, a, q, r),
+    pol_00 = p_1_00(p, a, q, r)
+  ) |>
+  # Belief coding of the theory-helpers chunk: P(w_2 = j | messages i, j).
+  mutate(
+    b2_11 = pol_11,
+    b2_01 = pol_01,
+    b2_10 = 1 - pol_10,
+    b2_00 = 1 - pol_00
+  )
+
+# Message pair (i, j): i first, j second; 1 = "mixing is safe", the policy whose
+# prior probability of being optimal is p. Experimental coding is Z_1 = i and
+# Z_r = 1{i != j}, matching safe_time1 and inconsistent. Saturated cell means
+# Y = a + b_r Z_r + b_1 Z_1 + b_x Z_r Z_1 give Y(0,1) - Y(0,0) = b_r and
+# Y(1,0) - Y(1,1) = b_r + b_x, and the Lin-demeaned coefficients of
+# fig_5_abc_parameters.pdf are the 50/50 averages b_r + b_x/2, b_1 + b_x/2,
+# and -b_x/2.
+ts_structural <- function(y00, y01, y10, y11) {
+  d_first0 <- y01 - y00
+  d_first1 <- y10 - y11
+  tibble(
+    beta_r = (d_first0 + d_first1) / 2,
+    beta_2 = (d_first0 - d_first1) / 2,
+    beta_1 = ((y11 - y00) + (y10 - y01)) / 2
+  )
+}
+
+ts_cell_params <- bind_rows(
+  bind_cols(
+    ts_cells |> select(prior, p, a, q),
+    ts_structural(ts_cells$b2_00, ts_cells$b2_01, ts_cells$b2_10, ts_cells$b2_11)
+  ) |>
+    mutate(
+      outcome = "Belief",
+      ybar_support = (ts_cells$pol_00 + ts_cells$pol_01 +
+                        ts_cells$pol_10 + ts_cells$pol_11) / 4
+    ),
+  bind_cols(
+    ts_cells |> select(prior, p, a, q),
+    ts_structural(ts_cells$c_00, ts_cells$c_01, ts_cells$c_10, ts_cells$c_11)
+  ) |>
+    mutate(outcome = "Credible", ybar_support = NA_real_)
+)
+
+# Checks reported in the appendix note for this figure.
+ts_bel <- filter(ts_cell_params, outcome == "Belief")
+ts_checks <- c(
+  # Because Z_2 = Z_1 + Z_r - 2 Z_1 Z_r and Belief is coded relative to the
+  # second message, beta_2 on Belief is 2 * mean support - 1: near-definitional.
+  beta2_identity = max(abs(ts_bel$beta_2 - (2 * ts_bel$ybar_support - 1))),
+  # The credibility reversal contrast is q-invariant in log odds, so any trust
+  # shift on Credible is probability-scale compression, not evidentiary force.
+  logodds_q_spread = ts_cells |>
+    mutate(
+      lo = ((qlogis(c_01) - qlogis(c_00)) + (qlogis(c_10) - qlogis(c_11))) / 2
+    ) |>
+    group_by(prior, a) |>
+    summarise(spread = max(lo) - min(lo), .groups = "drop") |>
+    pull(spread) |>
+    max(),
+  # Proposition: beta_r is invariant to p <-> 1-p, beta_1 and beta_2 flip sign.
+  symmetry = local({
+    g <- expand_grid(
+      p = seq(0.02, 0.98, by = 0.01),
+      a = seq(0.50, 0.99, by = 0.01),
+      q = seq(0.02, 0.98, by = 0.02),
+      r = c(0.5001, 0.55, 2 / 3, 0.75, 0.9, 0.99)
+    )
+    bet <- function(p) {
+      o10 <- p_1_10(p, g$a, g$q, g$r)
+      o00 <- p_1_00(p, g$a, g$q, g$r)
+      list(
+        cred = ts_structural(
+          p_c_00(p, g$a, g$q, g$r), p_c_01(p, g$a, g$q, g$r),
+          p_c_10(p, g$a, g$q, g$r), p_c_11(p, g$a, g$q, g$r)
+        ),
+        bel = ts_structural(
+          1 - o00, p_1_01(p, g$a, g$q, g$r), 1 - o10, p_1_11(p, g$a, g$q, g$r)
+        )
+      )
+    }
+    A <- bet(g$p)
+    B <- bet(1 - g$p)
+    max(
+      abs(B$cred$beta_r - A$cred$beta_r), abs(B$cred$beta_1 + A$cred$beta_1),
+      abs(B$cred$beta_2 + A$cred$beta_2), abs(B$bel$beta_r - A$bel$beta_r),
+      abs(B$bel$beta_1 + A$bel$beta_1), abs(B$bel$beta_2 + A$bel$beta_2)
+    )
+  })
+)
+print(signif(ts_checks, 3))
+
+# Z_s and Z_t are assigned 50/50, so a main effect is the unweighted mean over
+# the four (alpha, q) cells and the shifts are treated minus control arm means.
+ts_summarise <- function(d) {
+  d |>
+    summarise(
+      across(
+        c(beta_1, beta_2, beta_r),
+        list(
+          base = ~ mean(.x),
+          Zs = ~ mean(.x[a == ts_a_science]) - mean(.x[a == ts_a_control]),
+          Zt = ~ mean(.x[q == ts_q_trusted]) - mean(.x[q == ts_q_untrusted])
+        ),
+        .names = "{.col}|{.fn}"
+      ),
+      .groups = "drop"
+    )
+}
+
+ts_by_prior <- ts_cell_params |>
+  group_by(outcome, prior) |>
+  ts_summarise()
+
+ts_all <- ts_by_prior |>
+  group_by(outcome) |>
+  summarise(
+    across(contains("|"), ~ sum(.x * unname(ts_prior_w[prior]))),
+    .groups = "drop"
+  ) |>
+  mutate(prior = "ALL")
+
+ts_params <- bind_rows(ts_by_prior, ts_all) |>
+  pivot_longer(
+    contains("|"),
+    names_to = c("param", "arm"),
+    names_sep = "\\|",
+    values_to = "estimate"
+  )
+
+ts_top <- c("$\\beta_r$", "$\\beta_r \\times Z_s$", "$\\beta_r \\times Z_t$")
+ts_bot <- c("$\\beta_1$", "$\\beta_2$")
+
+ts_plot_dat <- ts_params |>
+  mutate(
+    effect = case_when(
+      param == "beta_r" & arm == "base" ~ ts_top[1],
+      param == "beta_r" & arm == "Zs" ~ ts_top[2],
+      param == "beta_r" & arm == "Zt" ~ ts_top[3],
+      param == "beta_1" & arm == "base" ~ ts_bot[1],
+      param == "beta_2" & arm == "base" ~ ts_bot[2],
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(effect)) |>
+  mutate(
+    series = factor(prior, ts_series_order),
+    outcome = factor(outcome, c("Belief", "Credible"))
+  )
+
+ts_colors <- c(
+  "ALL" = "grey20", "Low" = "#66c2a5",
+  "Middling" = "#fc8d62", "High" = "#8da0cb"
+)
+ts_shapes <- c("ALL" = 15, "Low" = 16, "Middling" = 17, "High" = 18)
+
+# Same grammar as fig_5_abc_parameters.pdf, minus the error bars: every point is
+# an exact prediction, so points are drawn large and solid to make the absence
+# of intervals read as deliberate rather than as a dropped layer. Generous x
+# expansion plus n.breaks = 5 and the extra panel spacing of theory_theme()
+# keeps the last tick label of one facet column clear of the first of the next.
+ts_panel <- function(d, effect_levels, scales) {
+  d <- d |> mutate(effect = factor(effect, effect_levels))
+  ggplot(d, aes(x = estimate, y = effect, color = series, shape = series)) +
+    geom_vline(xintercept = 0, linetype = "longdash") +
+    geom_point(
+      position = position_dodge(width = 0.65, reverse = TRUE),
+      size = 3.1,
+      stroke = 0.9
+    ) +
+    facet_grid(. ~ outcome, scales = scales) +
+    scale_color_manual(values = ts_colors, breaks = ts_series_order) +
+    scale_shape_manual(values = ts_shapes, breaks = ts_series_order) +
+    scale_y_discrete(limits = rev, labels = latex2exp::TeX) +
+    scale_x_continuous(n.breaks = 5, expand = expansion(mult = 0.10)) +
+    xlab("Model-implied effect (exact prediction; no sampling uncertainty)") +
+    ylab("") +
+    labs(color = "ALL / prior group", shape = "ALL / prior group") +
+    theory_theme() +
+    theme(
+      axis.text.x = element_text(size = 11),
+      axis.text.y = element_text(size = 11),
+      axis.title = element_text(size = 12),
+      strip.text = element_text(size = 12),
+      legend.text = element_text(size = 11),
+      legend.title = element_text(size = 12),
+      legend.position = "bottom"
+    )
+}
+
+fig_theory_structural <-
+  ts_panel(filter(ts_plot_dat, effect %in% ts_top), ts_top, "fixed") /
+  ts_panel(filter(ts_plot_dat, effect %in% ts_bot), ts_bot, "free_x") +
+  plot_layout(heights = c(3, 2), guides = "collect") &
+  theme(legend.position = "bottom")
+
+fig_theory_structural
+ggsave(
+  file.path(fig_dir, "fig_a5_theory_structural.pdf"),
+  fig_theory_structural,
+  width = 9,
+  # Kept short: at \linewidth the float also has to carry a long floatfoot, and
+  # a taller graphic makes the whole float exceed \textheight and never place.
+  height = 6.2,
+  device = cairo_pdf
+)
+```
+
+Main-text excerpt: top panel only, English row labels, Belief and
+Credibility. Same calibration as A.5. Built from `ts_plot_dat` so the two
+exhibits cannot drift.
+
+```{r}
+#| label: fig-theory-projection
+#| fig-cap: "Model-implied average reversal effect, and science and trusted-sender shifts, at one calibration."
+
+ts_top_en <- c(
+  "Reversal",
+  "Added reversal effect, science video",
+  "Added reversal effect, trusted sender"
+)
+ts_en_map <- c(
+  "$\\beta_r$" = ts_top_en[1],
+  "$\\beta_r \\times Z_s$" = ts_top_en[2],
+  "$\\beta_r \\times Z_t$" = ts_top_en[3]
+)
+ts_proj_dat <- ts_plot_dat |>
+  filter(effect %in% ts_top) |>
+  mutate(
+    effect = factor(unname(ts_en_map[as.character(effect)]), ts_top_en),
+    outcome = factor(
+      recode(as.character(outcome), Credible = "Credibility"),
+      c("Belief", "Credibility")
+    )
+  )
+
+fig_theory_projection <-
+  ts_panel(ts_proj_dat, ts_top_en, "fixed") +
+  scale_y_discrete(limits = rev) +
+  xlab("Change in posterior probability")
+
+fig_theory_projection
+ggsave(
+  file.path(fig_dir, "fig_theory_projection.pdf"),
+  fig_theory_projection,
+  width = 7.2,
+  height = 3.4,
+  device = cairo_pdf
+)
 ```
 
 ## Table B.1. OxCGRT (Government Response Index) {#tbl-coefficients-policy}
@@ -1902,22 +2767,41 @@ sat_low <- fit_saturated_list(dat_low)
 sat_med <- fit_saturated_list(dat_med)
 sat_high <- fit_saturated_list(dat_high)
 
+# The cuts split the 0-10 scale into equal thirds, not the sample into
+# terciles, so the groups are unequal. Each caption carries its own n.
+prior_n_lab <- function(d) {
+  sprintf(
+    "$n = %s$, %.1f\\%% of the sample",
+    formatC(nrow(d), big.mark = ",", format = "d"),
+    100 * nrow(d) / nrow(thirdwave)
+  )
+}
+
 write_texreg(
   sat_low,
   file = file.path(fig_dir, "tab_g5_low_priors.tex"),
-  caption = "Fully saturated model, low priors (prior on mixing $<$ 3.3)",
+  caption = paste0(
+    "Fully saturated model, low priors (prior on mixing $<$ 3.3; ",
+    prior_n_lab(dat_low), ")"
+  ),
   label = "tab:saturated_low_priors"
 )
 write_texreg(
   sat_med,
   file = file.path(fig_dir, "tab_g4_med_priors.tex"),
-  caption = "Fully saturated model, middling priors (3.3 $<$ prior on mixing $<$ 6.6)",
+  caption = paste0(
+    "Fully saturated model, middling priors (3.3 $<$ prior on mixing $<$ 6.6; ",
+    prior_n_lab(dat_med), ")"
+  ),
   label = "tab:saturated_med_priors"
 )
 write_texreg(
   sat_high,
   file = file.path(fig_dir, "tab_g3_high_priors.tex"),
-  caption = "Fully saturated model, high priors (prior on mixing $>$ 6.6)",
+  caption = paste0(
+    "Fully saturated model, high priors (prior on mixing $>$ 6.6; ",
+    prior_n_lab(dat_high), ")"
+  ),
   label = "tab:saturated_high_priors"
 )
 ```
@@ -2220,22 +3104,12 @@ knitr::kable(
 )
 ```
 
-# 7. Copy to Overleaf and export coefficients
+# 7. Export coefficients and copy to Overleaf
 
 Respondent-level data are not saved. We store coefficients and table strings only.
 
-```{r}
-#| label: copy-overleaf
-
-overleaf_dest <- file.path("..", "inconsistency_overleaf", "jeps_assets")
-dir.create(overleaf_dest, recursive = TRUE, showWarnings = FALSE)
-copied <- file.copy(
-  list.files(fig_dir, full.names = TRUE),
-  overleaf_dest,
-  overwrite = TRUE
-)
-c(n_copied = sum(copied), dest = normalizePath(overleaf_dest, winslash = "/", mustWork = FALSE))
-```
+The export runs before the copy, so that the copy carries this render's
+`jeps_estimates.Rdata` rather than the previous one's.
 
 ```{r}
 #| label: export-rdata
@@ -2273,8 +3147,23 @@ estimates <- list(
   order_dat = order_dat,
   prior_dat = prior_dat,
   party_dat = party_dat,
-  science_me = science_me
+  science_me = science_me,
+  belief_cred = belief_cred_dat,
+  abc_obs_dat = abc_obs_dat
 )
 
 save(estimates, file = file.path(fig_dir, "jeps_estimates.Rdata"))
+```
+
+```{r}
+#| label: copy-overleaf
+
+overleaf_dest <- file.path("..", "inconsistency_overleaf", "jeps_assets")
+dir.create(overleaf_dest, recursive = TRUE, showWarnings = FALSE)
+copied <- file.copy(
+  list.files(fig_dir, full.names = TRUE),
+  overleaf_dest,
+  overwrite = TRUE
+)
+c(n_copied = sum(copied), dest = normalizePath(overleaf_dest, winslash = "/", mustWork = FALSE))
 ```
